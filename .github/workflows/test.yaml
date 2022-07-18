@@ -41,16 +41,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install Dependencies
-      run: python -m pip install --upgrade coverage setuptools pip virtualenv tox
+      run: python -m pip install --upgrade setuptools pip virtualenv tox
     - name: Run Tests
       run: tox -e py
-
-    - name: Coverage reporting
-      run: |
-        coverage combine
-        coverage report -m
-        coverage xml
-        coverage html
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

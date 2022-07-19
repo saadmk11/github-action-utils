@@ -16,12 +16,12 @@ if sys.version_info >= (3, 8):
         "error",
         "group",
         "notice",
-        "set-output",
         "save-state",
+        "set-output",
         "stop-commands",
         "warning",
     ]
-    LogCommandTypes = Literal["debug", "notice", "warning", "error"]
+    LogCommandTypes = Literal["debug", "error", "notice", "warning"]
 else:
     CommandTypes = str
     LogCommandTypes = str
@@ -111,15 +111,12 @@ def _clean_markdown_string(markdown_string: str) -> str:
 
 def _to_camel_case(text: str) -> str:
     """
-    Transforms a string to camel case.
+    Transforms a snake case string to camel case.
 
     :param text: snake cased string
     :returns: camel cased string
     """
-    return "{}{}".format(
-        text[:1].lower(),
-        text.title().replace("_", "")[1:],
-    )
+    return f"{text[:1].lower()}{text.title().replace('_', '')[1:]}"
 
 
 def _print_log_message(
@@ -160,41 +157,6 @@ def set_output(name: str, value: Any) -> None:
     """
     property_string = f"name={_escape_property(name)}"
     _print_command("set-output", value, property_string=property_string)
-
-
-def save_state(name: str, value: Any) -> None:
-    """
-    creates environment variable for sharing with your workflow's pre: or post: actions.
-
-    Template: ::save-state name={name}::{value}
-    Example: echo "::save-state name=processID::12345"
-
-    :param name: Name of the state environment variable (e.g: STATE_{name})
-    :param value: value of the state environment variable
-    :returns: None
-    """
-    property_string = f"name={_escape_property(name)}"
-    _print_command("save-state", value, property_string=property_string)
-
-
-def get_state(name: str) -> Union[str, None]:
-    """
-    gets environment variable value for the state.
-
-    :param name: Name of the state environment variable (e.g: STATE_{name})
-    :returns: state value or None
-    """
-    return os.environ.get(f"STATE_{name}")
-
-
-def get_user_input(input_name: str) -> Union[str, None]:
-    """
-    gets user input from environment variables.
-
-    :param input_name: Name of the user input
-    :returns: input value or None
-    """
-    return os.environ.get(f"INPUT_{input_name.upper()}")
 
 
 def echo(message: Any) -> None:
@@ -331,6 +293,41 @@ def error(
     )
 
 
+def save_state(name: str, value: Any) -> None:
+    """
+    creates environment variable for sharing with your workflow's pre: or post: actions.
+
+    Template: ::save-state name={name}::{value}
+    Example: echo "::save-state name=processID::12345"
+
+    :param name: Name of the state environment variable (e.g: STATE_{name})
+    :param value: value of the state environment variable
+    :returns: None
+    """
+    property_string = f"name={_escape_property(name)}"
+    _print_command("save-state", value, property_string=property_string)
+
+
+def get_state(name: str) -> Union[str, None]:
+    """
+    gets environment variable value for the state.
+
+    :param name: Name of the state environment variable (e.g: STATE_{name})
+    :returns: state value or None
+    """
+    return os.environ.get(f"STATE_{name}")
+
+
+def get_user_input(name: str) -> Union[str, None]:
+    """
+    gets user input from environment variables.
+
+    :param name: Name of the user input
+    :returns: input value or None
+    """
+    return os.environ.get(f"INPUT_{name.upper()}")
+
+
 def start_group(title: str) -> None:
     """
     creates an expandable group in GitHub Actions log.
@@ -430,7 +427,7 @@ def stop_commands_context_manager(
 
 def set_env(name: str, value: Any) -> None:
     """
-    sets an environment variable for your workflow.
+    sets an environment variable for your workflows $GITHUB_ENV file.
 
     :param name: name of the environment variable
     :param value: value of the environment variable
@@ -451,20 +448,22 @@ def get_workflow_environment_variables() -> Dict[str, Any]:
 
     :returns: dictionary of all environment variables
     """
-    env = {}
+    environment_variable_dict = {}
     marker = f"<<{ACTION_ENV_DELIMITER}"
-    with open(os.environ["GITHUB_ENV"], "rb") as f:
-        for line in f:
+
+    with open(os.environ["GITHUB_ENV"], "rb") as file:
+        for line in file:
             decoded_line: str = line.decode("utf-8")
 
             if marker in decoded_line:
                 name, *_ = decoded_line.strip().split("<<")
+
                 try:
-                    decoded_value = next(f).decode("utf-8").rstrip()
+                    decoded_value = next(file).decode("utf-8").strip()
                 except StopIteration:
                     break
-            env[name] = decoded_value
-    return env
+            environment_variable_dict[name] = decoded_value
+    return environment_variable_dict
 
 
 def get_env(name: str) -> Any:
@@ -474,7 +473,7 @@ def get_env(name: str) -> Any:
     :param name: name of the environment variable
     :returns: value of the environment variable or None
     """
-    return get_workflow_environment_variables().get(name) or os.environ.get(name)
+    return os.environ.get(name) or get_workflow_environment_variables().get(name)
 
 
 def append_job_summary(markdown_text: str) -> None:

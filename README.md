@@ -2,7 +2,48 @@
 
 A collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script.
 
-### Example:
+## Example:
+
+### Example Workflow:
+
+```yaml
+name: run-python-script
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: python -m pip install github-action-utils
+
+    - name: Run Python Script
+      shell: python
+      run: |
+        import github_action_utils as gha_utils
+
+        with gha_utils.group("My Group"):
+            gha_utils.error(
+                "Error message", title="Error Title", file="example.py",
+                col=1, end_column=2, line=1, end_line=2,
+            )
+            gha_utils.notice("Another notice message")
+            gha_utils.append_job_summary("# Hello World")
+```
+
+### Example Code:
 
 ```python
 import github_action_utils as gha_utils

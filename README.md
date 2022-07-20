@@ -3,7 +3,7 @@
 ### Example:
 
 ```python
-with group_context_manager("My Group"):
+with group("My Group"):
     set_output("test_var", "test_value")
     save_state("state", "val")
 

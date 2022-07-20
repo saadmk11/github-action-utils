@@ -45,7 +45,9 @@ jobs:
     - name: Run Tests
       run: tox -e py
 
+    - run: coverage xml
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        files: .coverage
+        files: coverage.xml

@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Any
 from unittest import mock
@@ -347,3 +348,84 @@ def test_end_stop_commands(capfd: Any) -> None:
     gha_utils.end_stop_commands("test token")
     out, err = capfd.readouterr()
     assert out == "::test token::\n"
+
+
+def test_set_env(tmpdir: Any) -> None:
+    file = tmpdir.join("envfile")
+
+    with mock.patch.dict(os.environ, {"GITHUB_ENV": file.strpath}):
+        gha_utils.set_env("test", "test")
+        gha_utils.set_env("another", 2)
+
+    assert file.read() == (
+        "test<<__ENV_DELIMITER__\n"
+        "test\n__ENV_DELIMITER__\n"
+        "another<<__ENV_DELIMITER__\n2\n"
+        "__ENV_DELIMITER__\n"
+    )
+
+
+def test_get_workflow_environment_variables(tmpdir: Any) -> None:
+    file = tmpdir.join("envfile")
+
+    with mock.patch.dict(os.environ, {"GITHUB_ENV": file.strpath}):
+        gha_utils.set_env("test", "test")
+        gha_utils.set_env("another", 2)
+        data = gha_utils.get_workflow_environment_variables()
+
+    assert data == {"test": "test", "another": "2"}
+
+
+@mock.patch.dict(os.environ, {"GITHUB_ACTOR": "test", "ANOTHER": "another test"})
+def test_get_env() -> None:
+    assert gha_utils.get_env("GITHUB_ACTOR") == "test"
+    assert gha_utils.get_env("ANOTHER") == "another test"
+
+
+def test_append_job_summary(tmpdir: Any) -> None:
+    file = tmpdir.join("summary")
+
+    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": file.strpath}):
+        gha_utils.append_job_summary("# TEST")
+        gha_utils.append_job_summary("- point 1")
+
+    assert file.read() == "# TEST\n- point 1\n"
+
+
+def test_overwrite_job_summary(tmpdir: Any) -> None:
+    file = tmpdir.join("summary")
+
+    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": file.strpath}):
+        gha_utils.append_job_summary("# TEST")
+        gha_utils.overwrite_job_summary("- point 1")
+
+    assert file.read() == "- point 1\n"
+
+
+def test_remove_job_summary(tmpdir: Any) -> None:
+    file = tmpdir.join("summary")
+
+    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": file.strpath}):
+        gha_utils.remove_job_summary()
+
+    assert os.path.isfile(file.strpath) is False
+
+
+def test_add_system_path(tmpdir: Any) -> None:
+    file = tmpdir.join("summary")
+
+    with mock.patch.dict(os.environ, {"GITHUB_PATH": file.strpath}):
+        gha_utils.add_system_path("usr/a/b")
+
+    assert file.read() == "usr/a/b"
+
+
+def test_event_payload(tmpdir: Any) -> None:
+    file = tmpdir.join("summary")
+    payload = {"test": "test"}
+    file.write(json.dumps(payload))
+
+    with mock.patch.dict(os.environ, {"GITHUB_EVENT_PATH": file.strpath}):
+        data = gha_utils.event_payload()
+
+    assert data == payload

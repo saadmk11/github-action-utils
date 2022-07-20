@@ -518,7 +518,7 @@ def add_system_path(path: str) -> None:
     :returns: None
     """
     with open(os.environ["GITHUB_PATH"], "a") as f:
-        f.write(f"{path}\n")
+        f.write(f"{path}")
 
 
 @lru_cache(maxsize=1)

@@ -286,7 +286,7 @@ def error(
         message,
         title=title,
         file=file,
-        col_number=col,
+        col=col,
         end_column=end_column,
         line=line,
         end_line=end_line,

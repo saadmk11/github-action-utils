@@ -1,6 +1,6 @@
 # GitHub Action Utils
 
-A collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script.
+This package is a collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script inside a workflow.
 
 ## Example:
 

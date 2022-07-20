@@ -265,17 +265,17 @@ def test_set_output(
 @pytest.mark.parametrize(
     "input_args,expected",
     [
-        (["abc", 123], "::set-output name=abc::123\n"),
-        (["abc", "test"], "::set-output name=abc::test\n"),
-        (["abc", {"k": "v"}], '::set-output name=abc::{"k": "v"}\n'),
+        (["abc", 123], "::save-state name=abc::123\n"),
+        (["abc", "test"], "::save-state name=abc::test\n"),
+        (["abc", {"k": "v"}], '::save-state name=abc::{"k": "v"}\n'),
     ],
 )
-def test_set_output(
+def test_save_state(
     capfd: Any,
     input_args: Any,
     expected: str,
 ) -> None:
-    gha_utils.set_output(*input_args)
+    gha_utils.save_state(*input_args)
     out, err = capfd.readouterr()
     print(out)
     assert out == expected
@@ -283,14 +283,14 @@ def test_set_output(
 
 @mock.patch.dict(os.environ, {"STATE_test_state": "test", "abc": "another test"})
 def test_get_state() -> None:
-    assert gha_utils.get_state('test_state') == "test"
-    assert gha_utils.get_state('abc') is None
+    assert gha_utils.get_state("test_state") == "test"
+    assert gha_utils.get_state("abc") is None
 
 
 @mock.patch.dict(os.environ, {"INPUT_USERNAME": "test", "ANOTHER": "another test"})
 def test_get_user_input() -> None:
-    assert gha_utils.get_user_input('username') == "test"
-    assert gha_utils.get_user_input('another') is None
+    assert gha_utils.get_user_input("username") == "test"
+    assert gha_utils.get_user_input("another") is None
 
 
 @pytest.mark.parametrize(
@@ -338,12 +338,12 @@ def test_add_mask(capfd: Any, test_input: str, expected: str) -> None:
 
 
 def test_stop_commands(capfd: Any) -> None:
-    gha_utils.stop_commands(token='test token')
+    gha_utils.stop_commands(token="test token")
     out, err = capfd.readouterr()
     assert out == "::stop-commands ::test token\n"
 
 
 def test_end_stop_commands(capfd: Any) -> None:
-    gha_utils.end_stop_commands('test token')
+    gha_utils.end_stop_commands("test token")
     out, err = capfd.readouterr()
     assert out == "::test token::\n"

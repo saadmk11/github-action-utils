@@ -354,7 +354,7 @@ def end_group() -> None:
 
 
 @contextmanager
-def group_context_manager(title: str) -> Generator[Any, None, None]:
+def group(title: str) -> Generator[Any, None, None]:
     """
     creates and closes an expandable group in GitHub Actions log.
 
@@ -379,7 +379,7 @@ def add_mask(value: Any) -> None:
     _print_command("add-mask", value)
 
 
-def stop_commands(token: Union[str, None] = None) -> str:
+def begin_stop_commands(token: Union[str, None] = None) -> str:
     """
     stops processing any workflow commands between this and `end_stop_commands()`.
 
@@ -399,7 +399,7 @@ def stop_commands(token: Union[str, None] = None) -> str:
 
 def end_stop_commands(token: str) -> None:
     """
-    stops processing any workflow commands between this and `stop_commands()`
+    stops processing any workflow commands between this and `begin_stop_commands()`
 
     Template: ::{token}::
     Example: echo "::{12345}::"
@@ -411,7 +411,7 @@ def end_stop_commands(token: str) -> None:
 
 
 @contextmanager
-def stop_commands_context_manager(
+def stop_commands(
     token: Union[str, None] = None,
 ) -> Generator[Any, None, None]:
     """
@@ -420,7 +420,7 @@ def stop_commands_context_manager(
     :param token: token to use for the stop command
     :returns: None
     """
-    stop_token = stop_commands(token=token)
+    stop_token = begin_stop_commands(token=token)
     yield
     end_stop_commands(stop_token)
 

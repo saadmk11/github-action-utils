@@ -338,8 +338,8 @@ def test_add_mask(capfd: Any, test_input: str, expected: str) -> None:
     assert out == expected
 
 
-def test_stop_commands(capfd: Any) -> None:
-    gha_utils.stop_commands(token="test token")
+def test_begin_stop_commands(capfd: Any) -> None:
+    gha_utils.begin_stop_commands(token="test token")
     out, err = capfd.readouterr()
     assert out == "::stop-commands ::test token\n"
 

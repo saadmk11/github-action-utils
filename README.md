@@ -1,29 +1,33 @@
 # GitHub Action Utils
 
+A collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script.
+
 ### Example:
 
 ```python
-with group("My Group"):
-    set_output("test_var", "test_value")
-    save_state("state", "val")
+import github_action_utils as gha_utils
 
-    debug("Debug message")
+with gha_utils.group("My Group"):
+    gha_utils.set_output("test_var", "test_value")
+    gha_utils.save_state("state", "val")
 
-    warning(
+    gha_utils.debug("Debug message")
+
+    gha_utils.warning(
         "Warning message", title="Warning Title", file="example.py",
         col=1, end_column=2, line=5, end_line=6,
     )
-    warning("Another warning message")
+    gha_utils.warning("Another warning message")
 
-    error(
+    gha_utils.error(
         "Error message", title="Error Title", file="example.py",
         col=1, end_column=2, line=1, end_line=2,
     )
-    notice("Another notice message")
+    gha_utils.notice("Another notice message")
 
-    append_job_summary("# Hello World")
-    append_job_summary("- Point 1")
-    append_job_summary("- Point 2")
+    gha_utils.append_job_summary("# Hello World")
+    gha_utils.append_job_summary("- Point 1")
+    gha_utils.append_job_summary("- Point 2")
 ```
 
 #### Colorful Grouped Build Log Output

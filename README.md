@@ -79,3 +79,8 @@ with gha_utils.group("My Group"):
 
 #### Log Annotations Associated with a File
 ![s](https://user-images.githubusercontent.com/24854406/180003164-12735d03-a452-4bef-96a6-f1dc4298756e.png)
+
+
+# License
+
+The code in this project is released under the [MIT License](LICENSE).

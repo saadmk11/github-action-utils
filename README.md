@@ -20,11 +20,11 @@ Install `github-action-utils` using pip:
 pip install github-action-utils
 ```
 
-## Usage
+## Available Functions
 
-This section describes how to use the `github-action-utils` package. The functions in the package should be used inside a workflow.
+This section documents all the functions provided by `github-action-utils`. The functions in the package should be used inside a workflow run.
 
-### **`echo`**
+### **`echo(message)`**
 
 Prints specified message to the action workflow console.
 
@@ -39,7 +39,7 @@ Prints specified message to the action workflow console.
 # Hello World
 ```
 
-### **`debug`**
+### **`debug(message)`**
 
 Prints colorful debug message to the action workflow console.
 GitHub Actions Docs: [debug](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-debug-message)
@@ -55,7 +55,7 @@ GitHub Actions Docs: [debug](https://docs.github.com/en/actions/using-workflows/
 # ::debug ::Hello World
 ```
 
-### **`notice`**
+### **`notice(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None)`**
 
 Prints colorful notice message to the action workflow console.
 GitHub Actions Docs: [notice](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message)
@@ -79,7 +79,7 @@ GitHub Actions Docs: [notice](https://docs.github.com/en/actions/using-workflows
 # ::notice title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message=
 ```
 
-### **`warning`**
+### **`warning(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None)`**
 
 Prints colorful warning message to the action workflow console.
 GitHub Actions Docs: [warning](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-warning-message)
@@ -103,7 +103,7 @@ GitHub Actions Docs: [warning](https://docs.github.com/en/actions/using-workflow
 # ::warning title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
 ```
 
-### **`error`**
+### **`error(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None)`**
 
 Prints colorful error message to the action workflow console.
 GitHub Actions Docs: [error](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-error-message)
@@ -127,7 +127,7 @@ GitHub Actions Docs: [error](https://docs.github.com/en/actions/using-workflows/
 # ::error title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
 ```
 
-### **`set_output`**
+### **`set_output(name, value)`**
 
 Sets an action's output parameter for the running workflow.
 GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter)
@@ -143,7 +143,7 @@ GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workf
 # ::set-output name=test_name::test_value
 ```
 
-### **`save_state`**
+### **`save_state(name, value)`**
 
 Creates environment variable for sharing state with workflow's pre: or post: actions.
 GitHub Actions Docs: [save_state](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#sending-values-to-the-pre-and-post-actions)
@@ -159,7 +159,7 @@ GitHub Actions Docs: [save_state](https://docs.github.com/en/actions/using-workf
 # ::save-state name=test_name::test_value
 ```
 
-### **`get_state`**
+### **`get_state(name)`**
 
 Gets state environment variable from running workflow.
 
@@ -174,7 +174,7 @@ Gets state environment variable from running workflow.
 # test_value
 ```
 
-### **`get_state`**
+### **`get_user_input(name)`**
 
 Gets user input from running workflow.
 
@@ -189,7 +189,7 @@ Gets user input from running workflow.
 # my value
 ```
 
-### **`begin_stop_commands` and `end_stop_commands`**
+### **`begin_stop_commands(token=None)` and `end_stop_commands(token)`**
 
 Stops processing any workflow commands. This special command allows you to log anything without accidentally running a workflow command.
 GitHub Actions Docs: [stop_commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#stopping-and-starting-workflow-commands)
@@ -221,7 +221,39 @@ GitHub Actions Docs: [stop_commands](https://docs.github.com/en/actions/using-wo
 # ::my_token::
 ```
 
-### **`add_mask`**
+### **`start_group(title)` and `end_group()`**
+
+Creates an expandable group in the workflow log.
+GitHub Actions Docs: [group](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines)
+
+**example:**
+
+```python
+>> from github_action_utils import echo, start_group, end_group, group
+
+>> start_group("My Group Title")
+>> echo("Hello World")
+>> end_group()
+
+# Output:
+# ::group ::My Group Title
+# Hello World
+# ::endgroup::
+
+# ====================
+# Using Group Context Manager
+# ====================
+
+>> with group("My Group Title"):
+...   echo("Hello World")
+
+# Output:
+# ::group ::My Group Title
+# Hello World
+# ::endgroup::
+```
+
+### **`add_mask(value)`**
 
 Masking a value prevents a string or variable from being printed in the workflow console.
 GitHub Actions Docs: [add_mask](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#masking-a-value-in-log)
@@ -237,7 +269,7 @@ GitHub Actions Docs: [add_mask](https://docs.github.com/en/actions/using-workflo
 # ::add-mask ::test value
 ```
 
-### **`set_env`**
+### **`set_env(name, value)`**
 
 Creates an environment variable by writing this to the `GITHUB_ENV` environment file which is available to any subsequent steps in a workflow job.
 GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
@@ -250,7 +282,7 @@ GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflow
 >> set_env("my_env", "test value")
 ```
 
-### **`get_workflow_environment_variables`**
+### **`get_workflow_environment_variables()`**
 
 Gets all environment variables from the `GITHUB_ENV` environment file which is available to the workflow.
 GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
@@ -266,7 +298,7 @@ GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflow
 # {"my_env": "test value"}
 ```
 
-### **`get_env`**
+### **`get_env(name)`**
 
 Gets all environment variables from `os.environ` or the `GITHUB_ENV` environment file which is available to the workflow.
 This can also be used to get [environment variables set by GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables).
@@ -285,7 +317,7 @@ GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflow
 # https://api.github.com
 ```
 
-### **`append_job_summary`**
+### **`append_job_summary(markdown_text)`**
 
 Sets some custom Markdown for each job so that it will be displayed on the summary page of a workflow run.
 GitHub Actions Docs: [append_job_summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary)
@@ -299,7 +331,7 @@ GitHub Actions Docs: [append_job_summary](https://docs.github.com/en/actions/usi
 ```
 
 
-### **`overwrite_job_summary`**
+### **`overwrite_job_summary(markdown_text)`**
 
 Clears all content for the current step, and adds new job summary.
 GitHub Actions Docs: [overwrite_job_summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#overwriting-job-summaries)
@@ -312,7 +344,7 @@ GitHub Actions Docs: [overwrite_job_summary](https://docs.github.com/en/actions/
 >> overwrite_job_summary("# test summary")
 ```
 
-### **`remove_job_summary`**
+### **`remove_job_summary()`**
 
 completely removes job summary for the current step.
 GitHub Actions Docs: [remove_job_summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#removing-job-summaries)
@@ -325,7 +357,7 @@ GitHub Actions Docs: [remove_job_summary](https://docs.github.com/en/actions/usi
 >> remove_job_summary()
 ```
 
-### **`add_system_path`**
+### **`add_system_path(path)`**
 
 Prepends a directory to the system PATH variable (`GITHUB_PATH`) and automatically makes it available to all subsequent actions in the current job.
 GitHub Actions Docs: [add_system_path](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path)
@@ -338,7 +370,7 @@ GitHub Actions Docs: [add_system_path](https://docs.github.com/en/actions/using-
 >> add_system_path("var/path/to/file")
 ```
 
-### **`event_payload`**
+### **`event_payload()`**
 
 Get GitHub Event payload that triggered the workflow.
 

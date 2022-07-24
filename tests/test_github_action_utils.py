@@ -11,7 +11,6 @@ import github_action_utils as gha_utils
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        (["endgroup", ""], "::endgroup::\n"),
         (
             ["debug", "test debug", "test=1,test2=2"],
             "::debug test=1,test2=2::test debug\n",
@@ -97,10 +96,9 @@ def test__to_camel_case(test_input: str, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "input_args,input_kwargs,expected",
+    "input_kwargs,expected",
     [
         (
-            ["error", "test error"],
             {
                 "title": "test  \ntitle",
                 "file": "abc.py",
@@ -109,21 +107,14 @@ def test__to_camel_case(test_input: str, expected: str) -> None:
                 "line": 4,
                 "end_line": 5,
             },
-            "::error title=test  %0Atitle,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test error\n",
+            "title=test  %0Atitle,file=abc.py,col=1,endColumn=2,line=4,endLine=5",
         ),
-        (["error", "test debug"], {}, "::error ::test debug\n"),
-        (["debug", "test debug"], {}, "::debug ::test debug\n"),
+        ({"name": "test-name"}, "name=test-name"),
+        ({}, ""),
     ],
 )
-def test__print_log_message(
-    capfd: Any,
-    input_args: Any,
-    input_kwargs: Any,
-    expected: str,
-) -> None:
-    gha_utils._print_log_message(*input_args, **input_kwargs)
-    out, err = capfd.readouterr()
-    assert out == expected
+def test__build_options_string(input_kwargs: Any, expected: str) -> None:
+    assert gha_utils._build_options_string(**input_kwargs) == expected
 
 
 @pytest.mark.parametrize(

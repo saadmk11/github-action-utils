@@ -34,7 +34,7 @@ COMMAND_MARKER: str = "::"
 def _print_command(
     command: CommandTypes,
     command_message: str,
-    property_string: Union[str, None] = None,
+    options_string: Union[str] = "",
 ) -> None:
     """
     Helper function to print GitHub action commands to the shell.
@@ -44,14 +44,11 @@ def _print_command(
     :returns: None
     """
     # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
-    if command == "endgroup":
-        echo_message = f"{COMMAND_MARKER}endgroup{COMMAND_MARKER}"
-    else:
-        echo_message = (
-            f"{COMMAND_MARKER}{command} "
-            f"{property_string or ''}"
-            f"{COMMAND_MARKER}{_escape_data(command_message)}"
-        )
+    echo_message = (
+        f"{COMMAND_MARKER}{command} "
+        f"{options_string or ''}"
+        f"{COMMAND_MARKER}{_escape_data(command_message)}"
+    )
 
     print(echo_message)
 
@@ -119,29 +116,12 @@ def _to_camel_case(text: str) -> str:
     return f"{text[:1].lower()}{text.title().replace('_', '')[1:]}"
 
 
-def _print_log_message(
-    command: LogCommandTypes,
-    message: str,
-    **kwargs: Any,
-) -> None:
-    """
-    prints a log message to the GitHub action shell.
-
-    :param message: Message to display
-    :param title: Custom title
-    :param file: Filename in the repository
-    :param col: Column number, starting at 1
-    :param end_column: End column number
-    :param line: Line number, starting at 1
-    :param end_line: End line number
-    :returns: None
-    """
-    property_sting = ",".join(
+def _build_options_string(**kwargs: Any) -> str:
+    return ",".join(
         f"{_to_camel_case(key)}={_escape_property(value)}"
         for key, value in kwargs.items()
-        if value
+        if value is not None
     )
-    _print_command(command, message, property_string=property_sting)
 
 
 def set_output(name: str, value: Any) -> None:
@@ -155,8 +135,7 @@ def set_output(name: str, value: Any) -> None:
     :param value: value of the output
     :returns: None
     """
-    property_string = f"name={_escape_property(name)}"
-    _print_command("set-output", value, property_string=property_string)
+    _print_command("set-output", value, options_string=_build_options_string(name=name))
 
 
 def echo(message: Any) -> None:
@@ -182,7 +161,10 @@ def debug(message: str) -> None:
     :param message: message string
     :returns: None
     """
-    _print_log_message("debug", message)
+    _print_command(
+        "debug",
+        message,
+    )
 
 
 def notice(
@@ -209,15 +191,17 @@ def notice(
     :param end_line: End line number
     :returns: None
     """
-    _print_log_message(
+    _print_command(
         "notice",
         message,
-        title=title,
-        file=file,
-        col=col,
-        end_column=end_column,
-        line=line,
-        end_line=end_line,
+        options_string=_build_options_string(
+            title=title,
+            file=file,
+            col=col,
+            end_column=end_column,
+            line=line,
+            end_line=end_line,
+        ),
     )
 
 
@@ -245,15 +229,17 @@ def warning(
     :param end_line: End line number
     :returns: None
     """
-    _print_log_message(
+    _print_command(
         "warning",
         message,
-        title=title,
-        file=file,
-        col=col,
-        end_column=end_column,
-        line=line,
-        end_line=end_line,
+        options_string=_build_options_string(
+            title=title,
+            file=file,
+            col=col,
+            end_column=end_column,
+            line=line,
+            end_line=end_line,
+        ),
     )
 
 
@@ -281,15 +267,17 @@ def error(
     :param end_line: End line number
     :returns: None
     """
-    _print_log_message(
+    _print_command(
         "error",
         message,
-        title=title,
-        file=file,
-        col=col,
-        end_column=end_column,
-        line=line,
-        end_line=end_line,
+        options_string=_build_options_string(
+            title=title,
+            file=file,
+            col=col,
+            end_column=end_column,
+            line=line,
+            end_line=end_line,
+        ),
     )
 
 
@@ -304,8 +292,7 @@ def save_state(name: str, value: Any) -> None:
     :param value: value of the state environment variable
     :returns: None
     """
-    property_string = f"name={_escape_property(name)}"
-    _print_command("save-state", value, property_string=property_string)
+    _print_command("save-state", value, options_string=_build_options_string(name=name))
 
 
 def get_state(name: str) -> Union[str, None]:
@@ -350,7 +337,7 @@ def end_group() -> None:
 
     :returns: None
     """
-    _print_command("endgroup", "")
+    print(f"{COMMAND_MARKER}endgroup{COMMAND_MARKER}")
 
 
 @contextmanager

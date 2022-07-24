@@ -1,10 +1,369 @@
 # GitHub Action Utils
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/saadmk11/github-action-utils?style=flat-square)](https://github.com/saadmk11/github-action-utils/releases/latest)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/saadmk11/github-action-utils/Test?label=Test&style=flat-square)
+![Codecov](https://img.shields.io/codecov/c/github/saadmk11/github-action-utils?style=flat-square&token=ugjHXbEKib)
+[![GitHub](https://img.shields.io/github/license/saadmk11/github-action-utils?style=flat-square)](https://github.com/saadmk11/github-action-utils/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/saadmk11/github-action-utils?color=success&style=flat-square)](https://github.com/saadmk11/github-action-utils/stargazers)
+
 This package is a collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script inside a workflow.
 
-## Example:
+## Features
 
-### Example Workflow:
+This package provides a simple interface to run GitHub Action Workflow Commands from a python script inside a workflow.
+You can run almost all the command from [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) using this package.
+
+
+## Requirements
+
+**Python:** 3.6, 3.7, 3.8, 3.9, 3.10, 3.11
+
+## Installation
+
+Install `github-action-utils` using pip:
+
+```console
+pip install github-action-utils
+```
+
+## Usage
+
+This section describes how to use the `github-action-utils` package. The functions in the package should be used inside a workflow.
+
+### **`echo`**
+
+Prints specified message to the action workflow console.
+
+**example:**
+
+```python
+>> from github_action_utils import echo
+
+>> echo("Hello World")
+
+# Output:
+# Hello World
+```
+
+### **`debug`**
+
+Prints colorful debug message to the action workflow console.
+GitHub Actions Docs: [debug](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-debug-message)
+
+**example:**
+
+```python
+>> from github_action_utils import debug
+
+>> debug("Hello World")
+
+# Output:
+# ::debug ::Hello World
+```
+
+### **`notice`**
+
+Prints colorful notice message to the action workflow console.
+GitHub Actions Docs: [notice](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message)
+
+**example:**
+
+```python
+>> from github_action_utils import notice
+
+>> notice(
+    "test message",
+    title="test title",
+    file="abc.py",
+    col=1,
+    end_column=2,
+    line=4,
+    end_line=5,
+)
+
+# Output:
+# ::notice title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message=
+```
+
+### **`warning`**
+
+Prints colorful warning message to the action workflow console.
+GitHub Actions Docs: [warning](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-warning-message)
+
+**example:**
+
+```python
+>> from github_action_utils import warning
+
+>> warning(
+    "test message",
+    title="test title",
+    file="abc.py",
+    col=1,
+    end_column=2,
+    line=4,
+    end_line=5,
+)
+
+# Output:
+# ::warning title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
+```
+
+### **`error`**
+
+Prints colorful error message to the action workflow console.
+GitHub Actions Docs: [error](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-error-message)
+
+**example:**
+
+```python
+>> from github_action_utils import error
+
+>> error(
+    "test message",
+    title="test title",
+    file="abc.py",
+    col=1,
+    end_column=2,
+    line=4,
+    end_line=5,
+)
+
+# Output:
+# ::error title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
+```
+
+### **`set_output`**
+
+Sets an action's output parameter for the running workflow.
+GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter)
+
+**example:**
+
+```python
+>> from github_action_utils import set_output
+
+>> set_output("test_name", "test_value",)
+
+# Output:
+# ::set-output name=test_name::test_value
+```
+
+### **`save_state`**
+
+Creates environment variable for sharing state with workflow's pre: or post: actions.
+GitHub Actions Docs: [save_state](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#sending-values-to-the-pre-and-post-actions)
+
+**example:**
+
+```python
+>> from github_action_utils import save_state
+
+>> save_state("test_name", "test_value",)
+
+# Output:
+# ::save-state name=test_name::test_value
+```
+
+### **`get_state`**
+
+Gets state environment variable from running workflow.
+
+**example:**
+
+```python
+>> from github_action_utils import get_state
+
+>> get_state("test_name")
+
+# Output:
+# test_value
+```
+
+### **`get_state`**
+
+Gets user input from running workflow.
+
+**example:**
+
+```python
+>> from github_action_utils import get_user_input
+
+>> get_user_input("my_input")
+
+# Output:
+# my value
+```
+
+### **`begin_stop_commands` and `end_stop_commands`**
+
+Stops processing any workflow commands. This special command allows you to log anything without accidentally running a workflow command.
+GitHub Actions Docs: [stop_commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#stopping-and-starting-workflow-commands)
+
+**example:**
+
+```python
+>> from github_action_utils import echo, begin_stop_commands, end_stop_commands, stop_commands
+
+>> begin_stop_commands(token="my_token")
+>> echo("Hello World")
+>> end_stop_commands("my_token")
+
+# Output:
+# ::stop-commands ::my_token
+# Hello World
+# ::my_token::
+
+# ====================
+# Using Stop Commands Context Manager
+# ====================
+
+>> with stop_commands(token="my_token"):
+...   echo("Hello World")
+
+# Output:
+# ::stop-commands ::my_token
+# Hello World
+# ::my_token::
+```
+
+### **`add_mask`**
+
+Masking a value prevents a string or variable from being printed in the workflow console.
+GitHub Actions Docs: [add_mask](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#masking-a-value-in-log)
+
+**example:**
+
+```python
+>> from github_action_utils import add_mask
+
+>> add_mask("test value")
+
+# Output:
+# ::add-mask ::test value
+```
+
+### **`set_env`**
+
+Creates an environment variable by writing this to the `GITHUB_ENV` environment file which is available to any subsequent steps in a workflow job.
+GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
+
+**example:**
+
+```python
+>> from github_action_utils import set_env
+
+>> set_env("my_env", "test value")
+```
+
+### **`get_workflow_environment_variables`**
+
+Gets all environment variables from the `GITHUB_ENV` environment file which is available to the workflow.
+GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
+
+**example:**
+
+```python
+>> from github_action_utils import get_workflow_environment_variables
+
+>> get_workflow_environment_variables()
+
+# Output:
+# {"my_env": "test value"}
+```
+
+### **`get_env`**
+
+Gets all environment variables from `os.environ` or the `GITHUB_ENV` environment file which is available to the workflow.
+This can also be used to get [environment variables set by GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables).
+GitHub Actions Docs: [set_env](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable)
+
+**example:**
+
+```python
+>> from github_action_utils import get_env
+
+>> get_env("my_env")
+>> get_env("GITHUB_API_URL")
+
+# Output:
+# test value
+# https://api.github.com
+```
+
+### **`append_job_summary`**
+
+Sets some custom Markdown for each job so that it will be displayed on the summary page of a workflow run.
+GitHub Actions Docs: [append_job_summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary)
+
+**example:**
+
+```python
+>> from github_action_utils import append_job_summary
+
+>> append_job_summary("# test summary")
+```
+
+
+### **`overwrite_job_summary`**
+
+Clears all content for the current step, and adds new job summary.
+GitHub Actions Docs: [overwrite_job_summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#overwriting-job-summaries)
+
+**example:**
+
+```python
+>> from github_action_utils import overwrite_job_summary
+
+>> overwrite_job_summary("# test summary")
+```
+
+### **`remove_job_summary`**
+
+completely removes job summary for the current step.
+GitHub Actions Docs: [remove_job_summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#removing-job-summaries)
+
+**example:**
+
+```python
+>> from github_action_utils import remove_job_summary
+
+>> remove_job_summary()
+```
+
+### **`add_system_path`**
+
+Prepends a directory to the system PATH variable (`GITHUB_PATH`) and automatically makes it available to all subsequent actions in the current job.
+GitHub Actions Docs: [add_system_path](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path)
+
+**example:**
+
+```python
+>> from github_action_utils import add_system_path
+
+>> add_system_path("var/path/to/file")
+```
+
+### **`event_payload`**
+
+Get GitHub Event payload that triggered the workflow.
+
+More details: [GitHub Actions Event Payload](https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads)
+
+**example:**
+
+```python
+>> from github_action_utils import event_payload
+
+>> event_payload()
+
+# Output:
+# {"action": "opened", "number": 1, "pull_request": {"url": "https://api.github.com/repos/octocat/Hello-World/pulls/1"}, "repository": {"url": "https://api.github.com/repos/octocat/Hello-World"}, "sender": {"login": "octocat"}...}
+```
+
+## Example
+
+### Example Workflow
 
 ```yaml
 name: run-python-script
@@ -43,7 +402,7 @@ jobs:
             gha_utils.append_job_summary("# Hello World")
 ```
 
-### Example Code:
+### Example Code
 
 ```python
 import github_action_utils as gha_utils

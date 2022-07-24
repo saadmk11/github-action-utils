@@ -476,7 +476,7 @@ def append_job_summary(markdown_text: str) -> None:
 
 def overwrite_job_summary(markdown_text: str) -> None:
     """
-    overwrites Summery of the job for the GitHub Action Summary page.
+    overwrites summary of the job for the GitHub Action Summary page.
 
     :param markdown_text: string with Markdown text
     :returns: None
@@ -487,7 +487,7 @@ def overwrite_job_summary(markdown_text: str) -> None:
 
 def remove_job_summary() -> None:
     """
-    removes Summery file for the job.
+    removes summary file for the job.
 
     :returns: None
     """

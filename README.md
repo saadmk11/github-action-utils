@@ -6,13 +6,7 @@
 [![GitHub](https://img.shields.io/github/license/saadmk11/github-action-utils?style=flat-square)](https://github.com/saadmk11/github-action-utils/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/saadmk11/github-action-utils?color=success&style=flat-square)](https://github.com/saadmk11/github-action-utils/stargazers)
 
-This package is a collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script inside a workflow.
-
-## Features
-
-This package provides a simple interface to run GitHub Action Workflow Commands from a python script inside a workflow.
-You can run almost all the command from [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) using this package.
-
+This package is a collection of python functions that can be used to run [GitHub Action Workflow Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions) from a python script inside a action workflow.
 
 ## Requirements
 

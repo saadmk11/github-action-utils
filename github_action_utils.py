@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import sys
 import uuid
 from contextlib import contextmanager
@@ -34,6 +35,7 @@ def _print_command(
     command: CommandTypes,
     command_message: str,
     options_string: Union[str] = "",
+    use_subprocess: bool = False,
     escape_message: bool = True,
 ) -> None:
     """
@@ -42,18 +44,23 @@ def _print_command(
 
     :param command: command name from `CommandTypes`
     :param command_message: message string
+    :param options_string: string containing extra options
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
     if escape_message:
         command_message = _escape_data(command_message)
 
-    echo_message = (
+    full_command = (
         f"{COMMAND_MARKER}{command} "
         f"{options_string or ''}"
         f"{COMMAND_MARKER}{command_message}"
     )
 
-    print(echo_message)
+    if use_subprocess:
+        subprocess.run(["echo", full_command])
+    else:
+        print(full_command)
 
 
 def _make_string(data: Any) -> str:
@@ -127,7 +134,7 @@ def _build_options_string(**kwargs: Any) -> str:
     )
 
 
-def set_output(name: str, value: Any) -> None:
+def set_output(name: str, value: Any, use_subprocess: bool = False) -> None:
     """
     Sets an action's output parameter.
 
@@ -136,12 +143,18 @@ def set_output(name: str, value: Any) -> None:
 
     :param name: name of the output
     :param value: value of the output
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    _print_command("set-output", value, options_string=_build_options_string(name=name))
+    _print_command(
+        "set-output",
+        value,
+        options_string=_build_options_string(name=name),
+        use_subprocess=use_subprocess,
+    )
 
 
-def echo(message: Any) -> None:
+def echo(message: Any, use_subprocess: bool = False) -> None:
     """
     prints a message to the GitHub Actions shell.
 
@@ -149,12 +162,18 @@ def echo(message: Any) -> None:
     Example: echo "info message"
 
     :param message: Any type of message e.g. string, number, list, dict
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    print(message)
+    message = str(message)
+
+    if use_subprocess:
+        subprocess.run(["echo", message])
+    else:
+        print(message)
 
 
-def debug(message: str) -> None:
+def debug(message: str, use_subprocess: bool = False) -> None:
     """
     prints a debug message in the GitHub Actions shell.
 
@@ -162,9 +181,12 @@ def debug(message: str) -> None:
     Example: echo "::debug::Set the Octocat variable"
 
     :param message: message string
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    _print_command("debug", message, escape_message=False)
+    _print_command(
+        "debug", message, use_subprocess=use_subprocess, escape_message=False
+    )
 
 
 def notice(
@@ -175,6 +197,7 @@ def notice(
     end_column: Union[int, None] = None,
     line: Union[int, None] = None,
     end_line: Union[int, None] = None,
+    use_subprocess: bool = False,
 ) -> None:
     """
     prints a notice message in the GitHub Actions shell.
@@ -189,6 +212,7 @@ def notice(
     :param end_column: End column number
     :param line: Line number, starting at 1
     :param end_line: End line number
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
     _print_command(
@@ -202,6 +226,7 @@ def notice(
             line=line,
             end_line=end_line,
         ),
+        use_subprocess=use_subprocess,
         escape_message=False,
     )
 
@@ -214,6 +239,7 @@ def warning(
     end_column: Union[int, None] = None,
     line: Union[int, None] = None,
     end_line: Union[int, None] = None,
+    use_subprocess: bool = False,
 ) -> None:
     """
     prints a warning message in the GitHub Actions shell.
@@ -228,6 +254,7 @@ def warning(
     :param end_column: End column number
     :param line: Line number, starting at 1
     :param end_line: End line number
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
     _print_command(
@@ -241,6 +268,7 @@ def warning(
             line=line,
             end_line=end_line,
         ),
+        use_subprocess=use_subprocess,
         escape_message=False,
     )
 
@@ -253,6 +281,7 @@ def error(
     end_column: Union[int, None] = None,
     line: Union[int, None] = None,
     end_line: Union[int, None] = None,
+    use_subprocess: bool = False,
 ) -> None:
     """
     prints an error message in the GitHub Actions shell.
@@ -267,6 +296,7 @@ def error(
     :param end_column: End column number
     :param line: Line number, starting at 1
     :param end_line: End line number
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
     _print_command(
@@ -280,11 +310,12 @@ def error(
             line=line,
             end_line=end_line,
         ),
+        use_subprocess=use_subprocess,
         escape_message=False,
     )
 
 
-def save_state(name: str, value: Any) -> None:
+def save_state(name: str, value: Any, use_subprocess: bool = False) -> None:
     """
     creates environment variable for sharing with your workflow's pre: or post: actions.
 
@@ -293,9 +324,15 @@ def save_state(name: str, value: Any) -> None:
 
     :param name: Name of the state environment variable (e.g: STATE_{name})
     :param value: value of the state environment variable
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    _print_command("save-state", value, options_string=_build_options_string(name=name))
+    _print_command(
+        "save-state",
+        value,
+        options_string=_build_options_string(name=name),
+        use_subprocess=use_subprocess,
+    )
 
 
 def get_state(name: str) -> Union[str, None]:
@@ -318,7 +355,7 @@ def get_user_input(name: str) -> Union[str, None]:
     return os.environ.get(f"INPUT_{name.upper()}")
 
 
-def start_group(title: str) -> None:
+def start_group(title: str, use_subprocess: bool = False) -> None:
     """
     creates an expandable group in GitHub Actions log.
 
@@ -326,37 +363,45 @@ def start_group(title: str) -> None:
     Example: echo "::group::My title"
 
     :param title: title of the group
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    _print_command("group", title, escape_message=False)
+    _print_command("group", title, use_subprocess=use_subprocess, escape_message=False)
 
 
-def end_group() -> None:
+def end_group(use_subprocess: bool = False) -> None:
     """
     closes an expandable group in GitHub Actions log.
 
     Template: ::endgroup::
     Example: echo "::endgroup::"
 
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    print(f"{COMMAND_MARKER}endgroup{COMMAND_MARKER}")
+    message = f"{COMMAND_MARKER}endgroup{COMMAND_MARKER}"
+
+    if use_subprocess:
+        subprocess.run(["echo", message])
+    else:
+        print(message)
 
 
 @contextmanager
-def group(title: str) -> Generator[Any, None, None]:
+def group(title: str, use_subprocess: bool = False) -> Generator[Any, None, None]:
     """
     creates and closes an expandable group in GitHub Actions log.
 
     :param title: title of the group
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    start_group(title)
+    start_group(title, use_subprocess=use_subprocess)
     yield
     end_group()
 
 
-def add_mask(value: Any) -> None:
+def add_mask(value: Any, use_subprocess: bool = False) -> None:
     """
     masking a value prevents a string or variable from being printed in the log.
 
@@ -364,12 +409,15 @@ def add_mask(value: Any) -> None:
     Example: echo "::add-mask::Mona The Octocat"
 
     :param value: value to mask
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    _print_command("add-mask", value)
+    _print_command("add-mask", value, use_subprocess=use_subprocess)
 
 
-def begin_stop_commands(token: Union[str, None] = None) -> str:
+def begin_stop_commands(
+    token: Union[str, None] = None, use_subprocess: bool = False
+) -> str:
     """
     stops processing any workflow commands between this and `end_stop_commands()`.
 
@@ -377,17 +425,20 @@ def begin_stop_commands(token: Union[str, None] = None) -> str:
     Example: echo "::stop-commands::12345"
 
     :param token: token to use for the stop command
+    :param use_subprocess: use subprocess module to echo command
     :returns: token
     """
     if not token:
         token = str(uuid.uuid1())
 
-    _print_command("stop-commands", token, escape_message=False)
+    _print_command(
+        "stop-commands", token, escape_message=False, use_subprocess=use_subprocess
+    )
 
     return token
 
 
-def end_stop_commands(token: str) -> None:
+def end_stop_commands(token: str, use_subprocess: bool = False) -> None:
     """
     stops processing any workflow commands between this and `begin_stop_commands()`
 
@@ -395,24 +446,31 @@ def end_stop_commands(token: str) -> None:
     Example: echo "::{12345}::"
 
     :param token: token used for the stop command
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    print(f"{COMMAND_MARKER}{token}{COMMAND_MARKER}")
+    message = f"{COMMAND_MARKER}{token}{COMMAND_MARKER}"
+
+    if use_subprocess:
+        subprocess.run(["echo", message])
+    else:
+        print(message)
 
 
 @contextmanager
 def stop_commands(
-    token: Union[str, None] = None,
+    token: Union[str, None] = None, use_subprocess: bool = False
 ) -> Generator[Any, None, None]:
     """
     stops processing GitHub action commands within this context manager.
 
     :param token: token to use for the stop command
+    :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    stop_token = begin_stop_commands(token=token)
+    stop_token = begin_stop_commands(token=token, use_subprocess=use_subprocess)
     yield
-    end_stop_commands(stop_token)
+    end_stop_commands(stop_token, use_subprocess=use_subprocess)
 
 
 def set_env(name: str, value: Any) -> None:

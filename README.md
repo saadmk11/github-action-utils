@@ -27,7 +27,7 @@ pip install github-action-utils
 
 This section documents all the functions provided by `github-action-utils`. The functions in the package should be used inside a workflow run.
 
-### **`echo(message)`**
+### **`echo(message, use_subprocess=False)`**
 
 Prints specified message to the action workflow console.
 
@@ -42,7 +42,7 @@ Prints specified message to the action workflow console.
 # Hello World
 ```
 
-### **`debug(message)`**
+### **`debug(message, use_subprocess=False)`**
 
 Prints colorful debug message to the action workflow console.
 GitHub Actions Docs: [debug](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-debug-message)
@@ -58,7 +58,7 @@ GitHub Actions Docs: [debug](https://docs.github.com/en/actions/using-workflows/
 # ::debug ::Hello World
 ```
 
-### **`notice(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None)`**
+### **`notice(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None, use_subprocess=False)`**
 
 Prints colorful notice message to the action workflow console.
 GitHub Actions Docs: [notice](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message)
@@ -82,7 +82,7 @@ GitHub Actions Docs: [notice](https://docs.github.com/en/actions/using-workflows
 # ::notice title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message=
 ```
 
-### **`warning(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None)`**
+### **`warning(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None, use_subprocess=False)`**
 
 Prints colorful warning message to the action workflow console.
 GitHub Actions Docs: [warning](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-warning-message)
@@ -106,7 +106,7 @@ GitHub Actions Docs: [warning](https://docs.github.com/en/actions/using-workflow
 # ::warning title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
 ```
 
-### **`error(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None)`**
+### **`error(message, title=None, file=None, col=None, end_column=None, line=None, end_line=None, use_subprocess=False)`**
 
 Prints colorful error message to the action workflow console.
 GitHub Actions Docs: [error](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-error-message)
@@ -130,7 +130,7 @@ GitHub Actions Docs: [error](https://docs.github.com/en/actions/using-workflows/
 # ::error title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
 ```
 
-### **`set_output(name, value)`**
+### **`set_output(name, value, use_subprocess=False)`**
 
 Sets an action's output parameter for the running workflow.
 GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter)
@@ -146,7 +146,7 @@ GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workf
 # ::set-output name=test_name::test_value
 ```
 
-### **`save_state(name, value)`**
+### **`save_state(name, value, use_subprocess=False)`**
 
 Creates environment variable for sharing state with workflow's pre: or post: actions.
 GitHub Actions Docs: [save_state](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#sending-values-to-the-pre-and-post-actions)
@@ -192,7 +192,7 @@ Gets user input from running workflow.
 # my value
 ```
 
-### **`begin_stop_commands(token=None)` and `end_stop_commands(token)`**
+### **`begin_stop_commands(token=None, use_subprocess=False)` and `end_stop_commands(token, use_subprocess=False)`**
 
 Stops processing any workflow commands. This special command allows you to log anything without accidentally running a workflow command.
 GitHub Actions Docs: [stop_commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#stopping-and-starting-workflow-commands)
@@ -224,7 +224,7 @@ GitHub Actions Docs: [stop_commands](https://docs.github.com/en/actions/using-wo
 # ::my_token::
 ```
 
-### **`start_group(title)` and `end_group()`**
+### **`start_group(title, use_subprocess=False)` and `end_group(use_subprocess=False)`**
 
 Creates an expandable group in the workflow log.
 GitHub Actions Docs: [group](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines)
@@ -256,7 +256,7 @@ GitHub Actions Docs: [group](https://docs.github.com/en/actions/using-workflows/
 # ::endgroup::
 ```
 
-### **`add_mask(value)`**
+### **`add_mask(value, use_subprocess=False)`**
 
 Masking a value prevents a string or variable from being printed in the workflow console.
 GitHub Actions Docs: [add_mask](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#masking-a-value-in-log)

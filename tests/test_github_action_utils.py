@@ -121,9 +121,9 @@ def test__build_options_string(input_kwargs: Any, expected: str) -> None:
     "test_input,expected",
     [
         ("test", "test\n"),
-        ("test\n", "test%0A\n"),
-        ("%test", "%25test\n"),
-        ("\rtest", "%0Dtest\n"),
+        ("test\n", "test\n\n"),
+        ("%test", "%test\n"),
+        ("\rtest", "\rtest\n"),
     ],
 )
 def test_echo(capfd: Any, test_input: str, expected: str) -> None:
@@ -136,9 +136,9 @@ def test_echo(capfd: Any, test_input: str, expected: str) -> None:
     "test_input,expected",
     [
         ("test", "::debug ::test\n"),
-        ("test\n", "::debug ::test%0A\n"),
-        ("%test", "::debug ::%25test\n"),
-        ("\rtest", "::debug ::%0Dtest\n"),
+        ("test\n", "::debug ::test\n\n"),
+        ("%test", "::debug ::%test\n"),
+        ("\rtest", "::debug ::\rtest\n"),
     ],
 )
 def test_debug(capfd: Any, test_input: str, expected: str) -> None:
@@ -289,9 +289,9 @@ def test_get_user_input() -> None:
     "test_input,expected",
     [
         ("test", "::group ::test\n"),
-        ("test\n", "::group ::test%0A\n"),
-        ("%test", "::group ::%25test\n"),
-        ("\rtest", "::group ::%0Dtest\n"),
+        ("test\n", "::group ::test\n\n"),
+        ("%test", "::group ::%test\n"),
+        ("\rtest", "::group ::\rtest\n"),
     ],
 )
 def test_start_group(capfd: Any, test_input: str, expected: str) -> None:

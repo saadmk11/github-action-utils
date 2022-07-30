@@ -12,7 +12,6 @@ if sys.version_info >= (3, 8):
     CommandTypes = Literal[
         "add-mask",
         "debug",
-        "endgroup",
         "error",
         "group",
         "notice",
@@ -35,19 +34,23 @@ def _print_command(
     command: CommandTypes,
     command_message: str,
     options_string: Union[str] = "",
+    escape_message: bool = True,
 ) -> None:
     """
     Helper function to print GitHub action commands to the shell.
+    Docs: https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
 
     :param command: command name from `CommandTypes`
     :param command_message: message string
     :returns: None
     """
-    # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
+    if escape_message:
+        command_message = _escape_data(command_message)
+
     echo_message = (
         f"{COMMAND_MARKER}{command} "
         f"{options_string or ''}"
-        f"{COMMAND_MARKER}{_escape_data(command_message)}"
+        f"{COMMAND_MARKER}{command_message}"
     )
 
     print(echo_message)
@@ -148,7 +151,7 @@ def echo(message: Any) -> None:
     :param message: Any type of message e.g. string, number, list, dict
     :returns: None
     """
-    print(_escape_data(message))
+    print(message)
 
 
 def debug(message: str) -> None:
@@ -161,10 +164,7 @@ def debug(message: str) -> None:
     :param message: message string
     :returns: None
     """
-    _print_command(
-        "debug",
-        message,
-    )
+    _print_command("debug", message, escape_message=False)
 
 
 def notice(
@@ -202,6 +202,7 @@ def notice(
             line=line,
             end_line=end_line,
         ),
+        escape_message=False,
     )
 
 
@@ -240,6 +241,7 @@ def warning(
             line=line,
             end_line=end_line,
         ),
+        escape_message=False,
     )
 
 
@@ -278,6 +280,7 @@ def error(
             line=line,
             end_line=end_line,
         ),
+        escape_message=False,
     )
 
 
@@ -325,7 +328,7 @@ def start_group(title: str) -> None:
     :param title: title of the group
     :returns: None
     """
-    _print_command("group", title)
+    _print_command("group", title, escape_message=False)
 
 
 def end_group() -> None:
@@ -379,7 +382,7 @@ def begin_stop_commands(token: Union[str, None] = None) -> str:
     if not token:
         token = str(uuid.uuid1())
 
-    _print_command("stop-commands", token)
+    _print_command("stop-commands", token, escape_message=False)
 
     return token
 

@@ -30,6 +30,8 @@ else:
 ACTION_ENV_DELIMITER: str = "__ENV_DELIMITER__"
 COMMAND_MARKER: str = "::"
 
+COMMANDS_USE_SUBPROCESS: bool = bool(os.environ.get("COMMANDS_USE_SUBPROCESS", False))
+
 
 def _print_command(
     command: CommandTypes,
@@ -57,7 +59,7 @@ def _print_command(
         f"{COMMAND_MARKER}{command_message}"
     )
 
-    if use_subprocess:
+    if use_subprocess or COMMANDS_USE_SUBPROCESS:
         subprocess.run(["echo", full_command])
     else:
         print(full_command)
@@ -167,7 +169,7 @@ def echo(message: Any, use_subprocess: bool = False) -> None:
     """
     message = str(message)
 
-    if use_subprocess:
+    if use_subprocess or COMMANDS_USE_SUBPROCESS:
         subprocess.run(["echo", message])
     else:
         print(message)
@@ -381,7 +383,7 @@ def end_group(use_subprocess: bool = False) -> None:
     """
     message = f"{COMMAND_MARKER}endgroup{COMMAND_MARKER}"
 
-    if use_subprocess:
+    if use_subprocess or COMMANDS_USE_SUBPROCESS:
         subprocess.run(["echo", message])
     else:
         print(message)
@@ -451,7 +453,7 @@ def end_stop_commands(token: str, use_subprocess: bool = False) -> None:
     """
     message = f"{COMMAND_MARKER}{token}{COMMAND_MARKER}"
 
-    if use_subprocess:
+    if use_subprocess or COMMANDS_USE_SUBPROCESS:
         subprocess.run(["echo", message])
     else:
         print(message)

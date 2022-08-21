@@ -400,7 +400,7 @@ def group(title: str, use_subprocess: bool = False) -> Generator[Any, None, None
     """
     start_group(title, use_subprocess=use_subprocess)
     yield
-    end_group()
+    end_group(use_subprocess=use_subprocess)
 
 
 def add_mask(value: Any, use_subprocess: bool = False) -> None:

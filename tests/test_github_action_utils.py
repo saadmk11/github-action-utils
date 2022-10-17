@@ -257,6 +257,14 @@ def test_set_output(tmpdir: Any) -> None:
     )
 
 
+def test_set_output_deprecation_warning(tmpdir: Any) -> None:
+    file = tmpdir.join("output_file")
+
+    with pytest.deprecated_call():
+        with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": file.strpath}):
+            gha_utils.set_output("test", "test", use_subprocess=True)
+
+
 def test_save_state(tmpdir: Any) -> None:
     file = tmpdir.join("state_file")
 
@@ -270,6 +278,14 @@ def test_save_state(tmpdir: Any) -> None:
         "another<<__ENV_DELIMITER__\n2\n"
         "__ENV_DELIMITER__\n"
     )
+
+
+def test_save_state_deprecation_warning(tmpdir: Any) -> None:
+    file = tmpdir.join("state_file")
+
+    with pytest.deprecated_call():
+        with mock.patch.dict(os.environ, {"GITHUB_STATE": file.strpath}):
+            gha_utils.save_state("test", "test", use_subprocess=True)
 
 
 @mock.patch.dict(os.environ, {"STATE_test_state": "test", "abc": "another test"})

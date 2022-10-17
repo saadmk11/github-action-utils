@@ -1,3 +1,8 @@
+# Version: 1.1.0
+
+* [#13](https://github.com/saadmk11/github-action-utils/pull/13): Update `save_state` and `set_output` Implementation [Previous Implementation is Deprecated]
+
+
 # Version: 1.0.2
 
 * [#9](https://github.com/saadmk11/github-action-utils/pull/9): Fix `group()` Context Manager `end_group()` function call not passing `use_subprocess`

@@ -210,9 +210,9 @@ GitHub Actions Docs: [error](https://docs.github.com/en/actions/using-workflows/
 # ::error title=test title,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test message
 ```
 
-### **`set_output(name, value, use_subprocess=False)`**
+### **`set_output(name, value)`**
 
-Sets an action's output parameter for the running workflow.
+Sets a step's output parameter by writing to `GITHUB_OUTPUT` environment file. Note that the step will need an `id` to be defined to later retrieve the output value.
 GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter)
 
 **example:**
@@ -220,15 +220,12 @@ GitHub Actions Docs: [set_output](https://docs.github.com/en/actions/using-workf
 ```python
 >> from github_action_utils import set_output
 
->> set_output("test_name", "test_value",)
-
-# Output:
-# ::set-output name=test_name::test_value
+>> set_output("my_output", "test value")
 ```
 
-### **`save_state(name, value, use_subprocess=False)`**
+### **`save_state(name, value)`**
 
-Creates environment variable for sharing state with workflow's pre: or post: actions.
+Creates an environment variable by writing this to the `GITHUB_STATE` environment file which is available to workflow's pre: or post: actions.
 GitHub Actions Docs: [save_state](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#sending-values-to-the-pre-and-post-actions)
 
 **example:**
@@ -236,10 +233,7 @@ GitHub Actions Docs: [save_state](https://docs.github.com/en/actions/using-workf
 ```python
 >> from github_action_utils import save_state
 
->> save_state("test_name", "test_value",)
-
-# Output:
-# ::save-state name=test_name::test_value
+>> save_state("my_state", "test value")
 ```
 
 ### **`get_state(name)`**

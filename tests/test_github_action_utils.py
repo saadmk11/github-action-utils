@@ -117,6 +117,13 @@ def test__build_options_string(input_kwargs: Any, expected: str) -> None:
     assert gha_utils._build_options_string(**input_kwargs) == expected
 
 
+def test__build_file_input() -> None:
+    assert (
+        gha_utils._build_file_input("test", "value")
+        == b"test<<__ENV_DELIMITER__\nvalue\n__ENV_DELIMITER__\n"
+    )
+
+
 @pytest.mark.parametrize(
     "test_input,expected",
     [
@@ -235,42 +242,34 @@ def test_error(
     assert out == expected
 
 
-@pytest.mark.parametrize(
-    "input_args,expected",
-    [
-        (["abc", 123], "::set-output name=abc::123\n"),
-        (["abc", "test"], "::set-output name=abc::test\n"),
-        (["abc", {"k": "v"}], '::set-output name=abc::{"k": "v"}\n'),
-    ],
-)
-def test_set_output(
-    capfd: Any,
-    input_args: Any,
-    expected: str,
-) -> None:
-    gha_utils.set_output(*input_args)
-    out, err = capfd.readouterr()
-    print(out)
-    assert out == expected
+def test_set_output(tmpdir: Any) -> None:
+    file = tmpdir.join("output_file")
+
+    with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": file.strpath}):
+        gha_utils.set_output("test", "test")
+        gha_utils.set_output("another", 2)
+
+    assert file.read() == (
+        "test<<__ENV_DELIMITER__\n"
+        "test\n__ENV_DELIMITER__\n"
+        "another<<__ENV_DELIMITER__\n2\n"
+        "__ENV_DELIMITER__\n"
+    )
 
 
-@pytest.mark.parametrize(
-    "input_args,expected",
-    [
-        (["abc", 123], "::save-state name=abc::123\n"),
-        (["abc", "test"], "::save-state name=abc::test\n"),
-        (["abc", {"k": "v"}], '::save-state name=abc::{"k": "v"}\n'),
-    ],
-)
-def test_save_state(
-    capfd: Any,
-    input_args: Any,
-    expected: str,
-) -> None:
-    gha_utils.save_state(*input_args)
-    out, err = capfd.readouterr()
-    print(out)
-    assert out == expected
+def test_save_state(tmpdir: Any) -> None:
+    file = tmpdir.join("state_file")
+
+    with mock.patch.dict(os.environ, {"GITHUB_STATE": file.strpath}):
+        gha_utils.save_state("test", "test")
+        gha_utils.save_state("another", 2)
+
+    assert file.read() == (
+        "test<<__ENV_DELIMITER__\n"
+        "test\n__ENV_DELIMITER__\n"
+        "another<<__ENV_DELIMITER__\n2\n"
+        "__ENV_DELIMITER__\n"
+    )
 
 
 @mock.patch.dict(os.environ, {"STATE_test_state": "test", "abc": "another test"})

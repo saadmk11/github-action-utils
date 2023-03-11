@@ -1,7 +1,7 @@
 # GitHub Action Utils
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/saadmk11/github-action-utils?style=flat-square)](https://github.com/saadmk11/github-action-utils/releases/latest)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/saadmk11/github-action-utils/Test?label=Test&style=flat-square)
+![Django Tests](https://img.shields.io/github/actions/workflow/status/saadmk11/github-action-utils/test.yaml?style=flat-square)
 ![Codecov](https://img.shields.io/codecov/c/github/saadmk11/github-action-utils?style=flat-square&token=ugjHXbEKib)
 [![GitHub](https://img.shields.io/github/license/saadmk11/github-action-utils?style=flat-square)](https://github.com/saadmk11/github-action-utils/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/saadmk11/github-action-utils?color=success&style=flat-square)](https://github.com/saadmk11/github-action-utils/stargazers)

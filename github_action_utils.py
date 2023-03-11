@@ -142,8 +142,8 @@ def _build_file_input(name: str, value: Any) -> bytes:
         f"{_escape_property(name)}"
         f"<<{ACTION_ENV_DELIMITER}\n"
         f"{_escape_data(value)}\n"
-        f"{ACTION_ENV_DELIMITER}\n".encode("utf-8")
-    )
+        f"{ACTION_ENV_DELIMITER}\n"
+    ).encode("utf-8")
 
 
 def set_output(name: str, value: Any, use_subprocess: Union[bool, None] = None) -> None:

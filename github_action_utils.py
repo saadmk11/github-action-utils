@@ -1,5 +1,6 @@
 import json
 import os
+import secrets
 import subprocess
 import sys
 import uuid
@@ -27,8 +28,6 @@ else:
     CommandTypes = str
     LogCommandTypes = str
 
-
-ACTION_ENV_DELIMITER: str = "__ENV_DELIMITER__"
 COMMAND_MARKER: str = "::"
 
 COMMANDS_USE_SUBPROCESS: bool = bool(os.environ.get("COMMANDS_USE_SUBPROCESS", False))
@@ -137,32 +136,17 @@ def _build_options_string(**kwargs: Any) -> str:
     )
 
 
-def _build_file_input(name: str, value: Any) -> bytes:
-    return (
-        f"{_escape_property(name)}"
-        f"<<{ACTION_ENV_DELIMITER}\n"
-        f"{_escape_data(value)}\n"
-        f"{ACTION_ENV_DELIMITER}\n".encode("utf-8")
-    )
+def _build_file_input(name: str, value: str) -> str:
+    delimiter = secrets.token_hex()
+    return f"{_escape_property(name)}<<{delimiter}\n{value}\n{delimiter}\n"
 
 
-def set_output(name: str, value: Any, use_subprocess: Union[bool, None] = None) -> None:
+def set_output(name: str, value: str) -> None:
     """
-    sets out for your workflow using GITHUB_OUTPUT file.
-
-    :param name: name of the output
-    :param value: value of the output
-    :returns: None
+    set workflow output using GITHUB_OUTPUT file.
     """
-    if use_subprocess is not None:
-        warn(
-            "Argument `use_subprocess` for `set_output()` is deprecated and "
-            "going to be removed in the next version.",
-            DeprecationWarning,
-        )
-
-    with open(os.environ["GITHUB_OUTPUT"], "ab") as f:
-        f.write(_build_file_input(name, value))
+    with open(os.environ["GITHUB_OUTPUT"], "a") as fp:
+        fp.write(_build_file_input(name, value))
 
 
 def echo(message: Any, use_subprocess: bool = False) -> None:
@@ -326,24 +310,13 @@ def error(
     )
 
 
-def save_state(name: str, value: Any, use_subprocess: Union[bool, None] = None) -> None:
+def save_state(name: str, value: str) -> None:
     """
-    sets state for your workflow using $GITHUB_STATE file
+    set state for your workflow using $GITHUB_STATE file
     for sharing it with your workflow's pre: or post: actions.
-
-    :param name: Name of the state environment variable (e.g: STATE_{name})
-    :param value: value of the state environment variable
-    :returns: None
     """
-    if use_subprocess is not None:
-        warn(
-            "Argument `use_subprocess` for `save_state()` is deprecated and "
-            "going to be removed in the next version.",
-            DeprecationWarning,
-        )
-
-    with open(os.environ["GITHUB_STATE"], "ab") as f:
-        f.write(_build_file_input(name, value))
+    with open(os.environ["GITHUB_STATE"], "a") as fp:
+        fp.write(_build_file_input(name, value))
 
 
 def get_state(name: str) -> Union[str, None]:
@@ -484,16 +457,12 @@ def stop_commands(
     end_stop_commands(stop_token, use_subprocess=use_subprocess)
 
 
-def set_env(name: str, value: Any) -> None:
+def set_env(name: str, value: str) -> None:
     """
-    sets an environment variable for your workflows $GITHUB_ENV file.
-
-    :param name: name of the environment variable
-    :param value: value of the environment variable
-    :returns: None
+    set an environment variable for your workflows $GITHUB_ENV file.
     """
-    with open(os.environ["GITHUB_ENV"], "ab") as f:
-        f.write(_build_file_input(name, value))
+    with open(os.environ["GITHUB_ENV"], "a") as fp:
+        fp.write(_build_file_input(name, value))
 
 
 def get_workflow_environment_variables() -> Dict[str, Any]:

@@ -5,7 +5,7 @@ import sys
 import uuid
 from contextlib import contextmanager
 from functools import lru_cache
-from typing import Any, Dict, Generator, Optional, Union
+from typing import Any, Dict, Generator, Literal, Optional, Union
 from warnings import warn
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,7 +34,8 @@ else:
 ACTION_ENV_DELIMITER: str = "__ENV_DELIMITER__"
 COMMAND_MARKER: str = "::"
 
-COMMANDS_USE_SUBPROCESS: bool = bool(os.environ.get("COMMANDS_USE_SUBPROCESS", False))
+COMMANDS_USE_SUBPROCESS: bool = bool(
+    os.environ.get("COMMANDS_USE_SUBPROCESS", False))
 
 
 def _print_command(
@@ -91,7 +92,8 @@ def _escape_data(data: Any) -> str:
     :returns: string after escaping
     """
     return (
-        _make_string(data).replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+        _make_string(data).replace("%", "%25").replace(
+            "\r", "%0D").replace("\n", "%0A")
     )
 
 
@@ -380,7 +382,8 @@ def start_group(title: str, use_subprocess: bool = False) -> None:
     :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    _print_command("group", title, use_subprocess=use_subprocess, escape_message=False)
+    _print_command("group", title, use_subprocess=use_subprocess,
+                   escape_message=False)
 
 
 def end_group(use_subprocess: bool = False) -> None:
@@ -482,7 +485,8 @@ def stop_commands(
     :param use_subprocess: use subprocess module to echo command
     :returns: None
     """
-    stop_token = begin_stop_commands(token=token, use_subprocess=use_subprocess)
+    stop_token = begin_stop_commands(
+        token=token, use_subprocess=use_subprocess)
     yield
     end_stop_commands(stop_token, use_subprocess=use_subprocess)
 
@@ -619,7 +623,8 @@ class variables():
         """The name of the person or app that initiated the workflow."""
         actor_id: Optional[str] = get_env("GITHUB_ACTOR_ID")
         """The account ID of the person or app that triggered the initial workflow run."""
-        api_url: Union[ParseResult, ParseResultBytes] = urlparse(get_env("GITHUB_API_URL"))
+        api_url: Union[ParseResult, ParseResultBytes] = urlparse(
+            get_env("GITHUB_API_URL"))
         """Returns the API URL."""
         base_ref: Optional[str] = get_env("GITHUB_BASE_REF")
         """The name of the base ref or target branch of the pull request in a workflow run. This is only set when the event that triggers a workflow run is either `pull_request` or `pull_request_target`."""
@@ -629,7 +634,8 @@ class variables():
         """The name of the event that triggered the workflow."""
         event_path: Path = Path(get_env("GITHUB_EVENT_PATH") or "")
         """The path to the file on the runner that contains the full event webhook payload."""
-        graphql_url: Union[ParseResult, ParseResultBytes] = urlparse(get_env("GITHUB_GRAPHQL_URL"))
+        graphql_url: Union[ParseResult, ParseResultBytes] = urlparse(
+            get_env("GITHUB_GRAPHQL_URL"))
         """Returns the GraphQL API URL."""
         head_ref: Optional[str] = get_env("GITHUB_HEAD_REF")
         """The head ref or source branch of the pull request in a workflow run. This property is only set when the event that triggers a workflow run is either `pull_request` or `pull_request_target`."""
@@ -641,9 +647,11 @@ class variables():
         """The fully-formed ref of the branch or tag that triggered the workflow run. For workflows triggered by `push`, this is the branch or tag ref that was pushed. For workflows triggered by `pull_request`, this is the pull request merge branch. For workflows triggered by `release`, this is the release tag created. For other triggers, this is the branch or tag ref that triggered the workflow run. This is only set if a branch or tag is available for the event type. The ref given is fully-formed, meaning that for branches the format is `refs/heads/<branch_name>`, for pull requests it is `refs/pull/<pr_number>/merge`, and for tags it is `refs/tags/<tag_name>`."""
         ref_name: Optional[str] = get_env("GITHUB_REF_NAME")
         """The short ref name of the branch or tag that triggered the workflow run. This value matches the branch or tag name shown on GitHub."""
-        ref_protected: bool = True if get_env("GITHUB_REF_PROTECTED") == "true" else False
+        ref_protected: bool = True if get_env(
+            "GITHUB_REF_PROTECTED") == "true" else False
         """`true` if branch protections are configured for the ref that triggered the workflow run."""
-        ref_type: Optional[Literal["branch", "tag"]] = get_env("GITHUB_REF_TYPE")
+        ref_type: Optional[Literal["branch", "tag"]
+                           ] = get_env("GITHUB_REF_TYPE")
         """The type of ref that triggered the workflow run. Valid values are `branch` or `tag`."""
         repository: Optional[str] = get_env("GITHUB_REPOSITORY")
         """The owner and repository name."""
@@ -651,9 +659,11 @@ class variables():
         """The ID of the repository."""
         repository_owner: Optional[str] = get_env("GITHUB_REPOSITORY_OWNER")
         """The repository owner's name."""
-        repository_owner_id: Optional[str] = get_env("GITHUB_REPOSITORY_OWNER_ID")
+        repository_owner_id: Optional[str] = get_env(
+            "GITHUB_REPOSITORY_OWNER_ID")
         """The repository owner's account ID."""
-        retention_days: Optional[int] = int(get_env("GITHUB_RETENTION_DAYS") or -1)
+        retention_days: Optional[int] = int(
+            get_env("GITHUB_RETENTION_DAYS") or -1)
         """The number of days that workflow run logs and artifacts are kept."""
         run_attempt: Optional[int] = int(get_env("GITHUB_RUN_ATTEMPT") or -1)
         """A unique number for each attempt of a particular workflow run in a repository. This number begins at 1 for the workflow run's first attempt, and increments with each re-run."""
@@ -661,7 +671,8 @@ class variables():
         """A unique number for each workflow run within a repository. This number does not change if you re-run the workflow run."""
         run_number: Optional[int] = int(get_env("GITHUB_RUN_NUMBER") or -1)
         """A unique number for each run of a particular workflow in a repository. This number begins at 1 for the workflow's first run, and increments with each new run. This number does not change if you re-run the workflow run."""
-        server_url: Union[ParseResult, ParseResultBytes] = urlparse(get_env("GITHUB_SERVER_URL"))
+        server_url: Union[ParseResult, ParseResultBytes] = urlparse(
+            get_env("GITHUB_SERVER_URL"))
         """The URL of the GitHub server."""
         sha: Optional[str] = get_env("GITHUB_SHA")
         """The commit SHA that triggered the workflow. The value of this commit SHA depends on the event that triggered the workflow. For more information, see "Events that trigger workflows.\""""
@@ -679,13 +690,15 @@ class variables():
     @dataclass(frozen=True)
     class runner():
         """Various information about the runner executing the job."""
-        arch: Optional[Literal["X86", "X64", "ARM", "ARM64"]] = get_env("RUNNER_ARCH")
+        arch: Optional[Literal["X86", "X64", "ARM", "ARM64"]
+                       ] = get_env("RUNNER_ARCH")
         """The architecture of the runner executing the job. Possible values are `X86`, `X64`, `ARM`, or `ARM64`."""
         debug: Optional[int] = int(get_env("RUNNER_DEBUG") or -1)
         """This is set only if debug logging is enabled, and always has the value of `1`. It can be useful as an indicator to enable additional debugging or verbose logging in your own job steps."""
         name: Optional[str] = get_env("RUNNER_NAME")
         """The name of the runner executing the job."""
-        os: Optional[Literal["Linux", "Windows", "macOS"]] = get_env("RUNNER_OS")
+        os: Optional[Literal["Linux", "Windows", "macOS"]
+                     ] = get_env("RUNNER_OS")
         """The operating system of the runner executing the job. Possible values are `Linux`, `Windows`, or `macOS`."""
         temp: Path = Path(get_env("RUNNER_TEMP") or "")
         """The path to a temporary directory on the runner. This directory is emptied at the beginning and end of each job. Note that files will not be removed if the runner's user account does not have permission to delete them."""

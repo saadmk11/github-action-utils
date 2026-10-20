@@ -1,6 +1,5 @@
-import json
 import os
-from typing import Any
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -18,69 +17,14 @@ import github_action_utils as gha_utils
         (["debug", "test debug", None], "::debug ::test debug\n"),
     ],
 )
-def test__print_command(capfd: Any, test_input: Any, expected: str) -> None:
+def test__print_command(
+    capfd: pytest.CaptureFixture[str],
+    test_input: tuple[gha_utils.CommandTypes, str, str | None],
+    expected: str,
+) -> None:
     gha_utils._print_command(*test_input)
     out, err = capfd.readouterr()
     assert out == expected
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("test", "test"),
-        (1, "1"),
-        (3.14, "3.14"),
-        (["test", "test"], '["test", "test"]'),
-        (
-            (
-                "test",
-                "test",
-            ),
-            '["test", "test"]',
-        ),
-        ({"test": 3.14, "key": True}, '{"test": 3.14, "key": true}'),
-    ],
-)
-def test__make_string(test_input: Any, expected: str) -> None:
-    assert gha_utils._make_string(test_input) == expected
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("test", "test"),
-        ("test\n", "test%0A"),
-        ("%test", "%25test"),
-        ("\rtest", "%0Dtest"),
-    ],
-)
-def test__escape_data(test_input: str, expected: str) -> None:
-    assert gha_utils._escape_data(test_input) == expected
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("test", "test"),
-        ("test:", "test%3A"),
-        ("test,", "test%2C"),
-    ],
-)
-def test__escape_property(test_input: str, expected: str) -> None:
-    assert gha_utils._escape_property(test_input) == expected
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("# test", "# test"),
-        ("# test%0A", "# test\n"),
-        ("- %25test", "- %test"),
-        ("**%0Dtest**", "**\rtest**"),
-    ],
-)
-def test__clean_markdown_string(test_input: str, expected: str) -> None:
-    assert gha_utils._clean_markdown_string(test_input) == expected
 
 
 @pytest.mark.parametrize(
@@ -113,15 +57,10 @@ def test__to_camel_case(test_input: str, expected: str) -> None:
         ({}, ""),
     ],
 )
-def test__build_options_string(input_kwargs: Any, expected: str) -> None:
+def test__build_options_string(
+    input_kwargs: dict[str, str | int], expected: str
+) -> None:
     assert gha_utils._build_options_string(**input_kwargs) == expected
-
-
-def test__build_file_input() -> None:
-    assert (
-        gha_utils._build_file_input("test", "value")
-        == b"test<<__ENV_DELIMITER__\nvalue\n__ENV_DELIMITER__\n"
-    )
 
 
 @pytest.mark.parametrize(
@@ -133,158 +72,27 @@ def test__build_file_input() -> None:
         ("\rtest", "\rtest\n"),
     ],
 )
-def test_echo(capfd: Any, test_input: str, expected: str) -> None:
+def test_echo(
+    capfd: pytest.CaptureFixture[str], test_input: str, expected: str
+) -> None:
     gha_utils.echo(test_input)
     out, err = capfd.readouterr()
     assert out == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("test", "::debug ::test\n"),
-        ("test\n", "::debug ::test\n\n"),
-        ("%test", "::debug ::%test\n"),
-        ("\rtest", "::debug ::\rtest\n"),
-    ],
-)
-def test_debug(capfd: Any, test_input: str, expected: str) -> None:
-    gha_utils.debug(test_input)
-    out, err = capfd.readouterr()
-    assert out == expected
-
-
-@pytest.mark.parametrize(
-    "input_args,input_kwargs,expected",
-    [
-        (
-            ["test notice"],
-            {
-                "title": "test  \ntitle",
-                "file": "abc.py",
-                "col": 1,
-                "end_column": 2,
-                "line": 4,
-                "end_line": 5,
-            },
-            "::notice title=test  %0Atitle,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test notice\n",
-        ),
-        (["test notice"], {}, "::notice ::test notice\n"),
-    ],
-)
-def test_notice(
-    capfd: Any,
-    input_args: Any,
-    input_kwargs: Any,
-    expected: str,
-) -> None:
-    gha_utils.notice(*input_args, **input_kwargs)
-    out, err = capfd.readouterr()
-    assert out == expected
-
-
-@pytest.mark.parametrize(
-    "input_args,input_kwargs,expected",
-    [
-        (
-            ["test warning"],
-            {
-                "title": "test  \ntitle",
-                "file": "abc.py",
-                "col": 1,
-                "end_column": 2,
-                "line": 4,
-                "end_line": 5,
-            },
-            "::warning title=test  %0Atitle,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test warning\n",
-        ),
-        (["test warning"], {}, "::warning ::test warning\n"),
-    ],
-)
-def test_warning(
-    capfd: Any,
-    input_args: Any,
-    input_kwargs: Any,
-    expected: str,
-) -> None:
-    gha_utils.warning(*input_args, **input_kwargs)
-    out, err = capfd.readouterr()
-    assert out == expected
-
-
-@pytest.mark.parametrize(
-    "input_args,input_kwargs,expected",
-    [
-        (
-            ["test error"],
-            {
-                "title": "test  \ntitle",
-                "file": "abc.py",
-                "col": 1,
-                "end_column": 2,
-                "line": 4,
-                "end_line": 5,
-            },
-            "::error title=test  %0Atitle,file=abc.py,col=1,endColumn=2,line=4,endLine=5::test error\n",
-        ),
-        (["test error"], {}, "::error ::test error\n"),
-    ],
-)
-def test_error(
-    capfd: Any,
-    input_args: Any,
-    input_kwargs: Any,
-    expected: str,
-) -> None:
-    gha_utils.error(*input_args, **input_kwargs)
-    out, err = capfd.readouterr()
-    print(out)
-    assert out == expected
-
-
-def test_set_output(tmpdir: Any) -> None:
-    file = tmpdir.join("output_file")
-
-    with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": file.strpath}):
-        gha_utils.set_output("test", "test")
-        gha_utils.set_output("another", 2)
-
-    assert file.read() == (
-        "test<<__ENV_DELIMITER__\n"
-        "test\n__ENV_DELIMITER__\n"
-        "another<<__ENV_DELIMITER__\n2\n"
-        "__ENV_DELIMITER__\n"
-    )
-
-
-def test_set_output_deprecation_warning(tmpdir: Any) -> None:
-    file = tmpdir.join("output_file")
+def test_set_output_deprecation_warning(tmp_path: Path) -> None:
+    file = tmp_path.joinpath("output_file")
 
     with pytest.deprecated_call():
-        with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": file.strpath}):
+        with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": str(file)}):
             gha_utils.set_output("test", "test", use_subprocess=True)
 
 
-def test_save_state(tmpdir: Any) -> None:
-    file = tmpdir.join("state_file")
-
-    with mock.patch.dict(os.environ, {"GITHUB_STATE": file.strpath}):
-        gha_utils.save_state("test", "test")
-        gha_utils.save_state("another", 2)
-
-    assert file.read() == (
-        "test<<__ENV_DELIMITER__\n"
-        "test\n__ENV_DELIMITER__\n"
-        "another<<__ENV_DELIMITER__\n2\n"
-        "__ENV_DELIMITER__\n"
-    )
-
-
-def test_save_state_deprecation_warning(tmpdir: Any) -> None:
-    file = tmpdir.join("state_file")
+def test_save_state_deprecation_warning(tmp_path: Path) -> None:
+    file = tmp_path.joinpath("state_file")
 
     with pytest.deprecated_call():
-        with mock.patch.dict(os.environ, {"GITHUB_STATE": file.strpath}):
+        with mock.patch.dict(os.environ, {"GITHUB_STATE": str(file)}):
             gha_utils.save_state("test", "test", use_subprocess=True)
 
 
@@ -292,33 +100,6 @@ def test_save_state_deprecation_warning(tmpdir: Any) -> None:
 def test_get_state() -> None:
     assert gha_utils.get_state("test_state") == "test"
     assert gha_utils.get_state("abc") is None
-
-
-@mock.patch.dict(os.environ, {"INPUT_USERNAME": "test", "ANOTHER": "another test"})
-def test_get_user_input() -> None:
-    assert gha_utils.get_user_input("username") == "test"
-    assert gha_utils.get_user_input("another") is None
-
-
-@pytest.mark.parametrize(
-    "test_input,expected",
-    [
-        ("test", "::group ::test\n"),
-        ("test\n", "::group ::test\n\n"),
-        ("%test", "::group ::%test\n"),
-        ("\rtest", "::group ::\rtest\n"),
-    ],
-)
-def test_start_group(capfd: Any, test_input: str, expected: str) -> None:
-    gha_utils.start_group(test_input)
-    out, err = capfd.readouterr()
-    assert out == expected
-
-
-def test_end_group(capfd: Any) -> None:
-    gha_utils.end_group()
-    out, err = capfd.readouterr()
-    assert out == "::endgroup::\n"
 
 
 @pytest.mark.parametrize(
@@ -338,100 +119,18 @@ def test_end_group(capfd: Any) -> None:
         ({"test": 3.14, "key": True}, '::add-mask ::{"test": 3.14, "key": true}\n'),
     ],
 )
-def test_add_mask(capfd: Any, test_input: str, expected: str) -> None:
+def test_add_mask(
+    capfd: pytest.CaptureFixture[str], test_input: str, expected: str
+) -> None:
     gha_utils.add_mask(test_input)
     out, err = capfd.readouterr()
     assert out == expected
 
 
-def test_begin_stop_commands(capfd: Any) -> None:
-    gha_utils.begin_stop_commands(token="test token")
-    out, err = capfd.readouterr()
-    assert out == "::stop-commands ::test token\n"
+def test_remove_job_summary(tmp_path: Path) -> None:
+    file = tmp_path.joinpath("summary")
 
-
-def test_end_stop_commands(capfd: Any) -> None:
-    gha_utils.end_stop_commands("test token")
-    out, err = capfd.readouterr()
-    assert out == "::test token::\n"
-
-
-def test_set_env(tmpdir: Any) -> None:
-    file = tmpdir.join("envfile")
-
-    with mock.patch.dict(os.environ, {"GITHUB_ENV": file.strpath}):
-        gha_utils.set_env("test", "test")
-        gha_utils.set_env("another", 2)
-
-    assert file.read() == (
-        "test<<__ENV_DELIMITER__\n"
-        "test\n__ENV_DELIMITER__\n"
-        "another<<__ENV_DELIMITER__\n2\n"
-        "__ENV_DELIMITER__\n"
-    )
-
-
-def test_get_workflow_environment_variables(tmpdir: Any) -> None:
-    file = tmpdir.join("envfile")
-
-    with mock.patch.dict(os.environ, {"GITHUB_ENV": file.strpath}):
-        gha_utils.set_env("test", "test")
-        gha_utils.set_env("another", 2)
-        data = gha_utils.get_workflow_environment_variables()
-
-    assert data == {"test": "test", "another": "2"}
-
-
-@mock.patch.dict(os.environ, {"GITHUB_ACTOR": "test", "ANOTHER": "another test"})
-def test_get_env() -> None:
-    assert gha_utils.get_env("GITHUB_ACTOR") == "test"
-    assert gha_utils.get_env("ANOTHER") == "another test"
-
-
-def test_append_job_summary(tmpdir: Any) -> None:
-    file = tmpdir.join("summary")
-
-    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": file.strpath}):
-        gha_utils.append_job_summary("# TEST")
-        gha_utils.append_job_summary("- point 1")
-
-    assert file.read() == "# TEST\n- point 1\n"
-
-
-def test_overwrite_job_summary(tmpdir: Any) -> None:
-    file = tmpdir.join("summary")
-
-    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": file.strpath}):
-        gha_utils.append_job_summary("# TEST")
-        gha_utils.overwrite_job_summary("- point 1")
-
-    assert file.read() == "- point 1\n"
-
-
-def test_remove_job_summary(tmpdir: Any) -> None:
-    file = tmpdir.join("summary")
-
-    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": file.strpath}):
+    with mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(file)}):
         gha_utils.remove_job_summary()
 
-    assert os.path.isfile(file.strpath) is False
-
-
-def test_add_system_path(tmpdir: Any) -> None:
-    file = tmpdir.join("summary")
-
-    with mock.patch.dict(os.environ, {"GITHUB_PATH": file.strpath}):
-        gha_utils.add_system_path("usr/a/b")
-
-    assert file.read() == "usr/a/b"
-
-
-def test_event_payload(tmpdir: Any) -> None:
-    file = tmpdir.join("summary")
-    payload = {"test": "test"}
-    file.write(json.dumps(payload))
-
-    with mock.patch.dict(os.environ, {"GITHUB_EVENT_PATH": file.strpath}):
-        data = gha_utils.event_payload()
-
-    assert data == payload
+    assert os.path.isfile(str(file)) is False

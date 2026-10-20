@@ -1,0 +1,20 @@
+from github_action_utils import ArtifactSubject, add_problem_matcher, add_system_path, declare_file_artifact, declare_oci_artifact, fail, get_boolean_input, get_multiline_input, get_user_input, get_workflow_artifacts, remove_problem_matcher, set_command_echo, set_output, vars
+
+set_output(123, "value")  # error
+number: int = vars.github.run_number  # error
+vars.github.actor = "replacement"  # error
+vars.runner.debug = False  # error
+set_command_echo("false")  # error
+get_user_input("name", required="yes")  # error
+get_boolean_input("name", trim_whitespace="yes")  # error
+flag: bool = get_boolean_input("optional")  # error
+lines: int = get_multiline_input("lines")  # error
+declare_file_artifact(123)  # error
+declare_oci_artifact(None)  # error
+add_problem_matcher(123)  # error
+remove_problem_matcher(owner=123)  # error
+subject: ArtifactSubject = get_workflow_artifacts()  # error
+artifact = ArtifactSubject("name", "digest", "file")
+artifact.name = "replacement"  # error
+add_system_path("path", strict="yes")  # error
+fail(123)  # error

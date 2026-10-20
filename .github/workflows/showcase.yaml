@@ -1,0 +1,70 @@
+name: Feature showcase
+
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  showcase:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+    defaults:
+      run:
+        shell: bash
+    env:
+      INPUT_SHOWCASE_TEXT: '  explicit fixture  '
+      INPUT_SHOWCASE_FLAG: 'true'
+      INPUT_SHOWCASE_LINES: |
+        first
+        世界
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: '0.13.1'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Install built package into the action Python
+        run: |
+          uv build --clear
+          uv pip install --system dist/*.whl
+      - name: Summary append, replacement, and removal in a separate fixture
+        run: python -m scripts.showcase summary
+      - name: Console, annotations, groups, inputs, and producer records
+        id: producer
+        run: python -m scripts.showcase produce
+      - name: Assert subsequent-step outputs, environment, PATH, and conditional artifacts
+        if: always()
+        env:
+          OUTPUT_VALUE: ${{ steps.producer.outputs.multiline }}
+          OUTPUT_NUMBER: ${{ steps.producer.outputs.number }}
+          OUTPUT_JSON: ${{ steps.producer.outputs.json }}
+          OUTPUT_EMPTY: ${{ steps.producer.outputs.empty }}
+          OUTPUT_UNICODE: ${{ steps.producer.outputs.unicode }}
+          ARTIFACTS_ENABLED: ${{ steps.producer.outputs.enabled }}
+        run: python -m scripts.showcase verify
+      - name: Main/post action-scoped state
+        uses: ./.github/actions/check-state
+      - name: Feature results
+        if: always()
+        run: python -m scripts.showcase report
+      - name: Upload showcase reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: showcase-${{ matrix.os }}
+          path: reports/showcase/

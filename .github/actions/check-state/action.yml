@@ -1,0 +1,6 @@
+name: Check Python action state
+description: Verify multiline state transfer from an action's main hook to its post hook.
+runs:
+  using: node24
+  main: main.cjs
+  post: post.cjs

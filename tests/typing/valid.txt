@@ -1,0 +1,76 @@
+from pathlib import Path
+from typing import Any, Dict, List, NoReturn, Optional, Tuple
+
+from github_action_utils import (
+    ArtifactSubject,
+    GitHubVariables,
+    RunnerVariables,
+    WorkflowVariables,
+    add_problem_matcher,
+    add_system_path,
+    declare_file_artifact,
+    declare_oci_artifact,
+    fail,
+    get_boolean_input,
+    get_env,
+    get_multiline_input,
+    get_user_input,
+    get_workflow_artifacts,
+    get_workflow_environment_variables,
+    group,
+    is_github_action,
+    remove_problem_matcher,
+    save_state,
+    set_command_echo,
+    set_env,
+    set_output,
+    vars,
+)
+
+workflow: WorkflowVariables = vars
+github: GitHubVariables = vars.github
+runner: RunnerVariables = vars.runner
+actor: Optional[str] = github.actor
+path: Optional[str] = github.event_path
+number: Optional[str] = github.run_number
+detected: bool = is_github_action()
+debugging: bool = runner.debug
+value: Optional[str] = get_env("EXAMPLE")
+pending: Dict[str, str] = get_workflow_environment_variables()
+legacy_mapping: Dict[str, object] = get_workflow_environment_variables()
+legacy_path: str = get_env("PATH")
+payload: Dict[str, Any] = {"enabled": True}
+with group("example"):
+    set_output("result", payload)
+    set_env("EXAMPLE", "value")
+    save_state("cleanup", ["first", "second"])
+
+raw: Optional[str] = get_user_input("name", required=True, trim_whitespace=True)
+flag: Optional[bool] = get_boolean_input("flag")
+lines: List[str] = get_multiline_input("lines", keep_empty_lines=True)
+subjects: Tuple[ArtifactSubject, ...] = get_workflow_artifacts()
+subject: ArtifactSubject = ArtifactSubject("name", "sha256:digest", "file")
+subject_name: str = subject.name
+set_command_echo(False)
+add_problem_matcher("matcher.json")
+remove_problem_matcher(owner="matcher-owner")
+remove_problem_matcher(path="matcher.json")
+declare_file_artifact("dist/app")
+declare_oci_artifact("image@sha256:" + "a" * 64)
+add_system_path(Path("dist/bin"))
+add_system_path("dist/bin", strict=True)
+
+
+def abort() -> NoReturn:
+    fail("failed")
+
+
+class ArbitraryLegacyValue:
+    def __str__(self) -> str:
+        return "custom value"
+
+
+custom_value = ArbitraryLegacyValue()
+set_output("custom", custom_value)
+set_env("CUSTOM", custom_value)
+save_state("custom", custom_value)

@@ -1,0 +1,125 @@
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14"]
+build-backend = "uv_build"
+
+[project]
+name = "github-action-utils"
+version = "2.0.0"
+description = "Python helpers for GitHub Actions workflow commands"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Maksudul Haque", email = "saad.mk112@gmail.com"}]
+dependencies = []
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/saadmk11/github-action-utils"
+Issues = "https://github.com/saadmk11/github-action-utils/issues"
+
+[dependency-groups]
+test = ["pytest>=9.1.1", "pytest-cov>=7.1.0", "coverage>=7.16.2"]
+lint = ["ruff>=0.17.1"]
+type = ["mypy>=2.4.0", "pytest>=9.1.1"]
+tox = ["tox>=4.67.1", "tox-uv>=1.37.0"]
+dev = [{include-group = "test"}, {include-group = "lint"}, {include-group = "type"}, {include-group = "tox"}]
+
+[tool.uv]
+required-version = ">=0.13.1,<0.14"
+build-constraint-dependencies = ["uv_build==0.13.1"]
+
+[tool.uv.build-backend]
+module-name = "github_action_utils"
+module-root = "src"
+source-include = ["CHANGELOG.md", "CONTRIBUTING.md", "tests/**", "scripts/**", ".github/actions/check-state/**", "uv.lock", ".python-version"]
+source-exclude = ["**/__pycache__/**", "**/*.pyc"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "ANN", "D", "C90", "UP"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+# Preserve the 1.1.0 public annotations.
+"src/github_action_utils/__init__.py" = ["ANN401", "UP006", "UP035"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src", "tests", "scripts", ".github/actions/check-state/check_state.py"]
+strict = true
+disallow_any_explicit = true
+disallow_any_generics = true
+disallow_any_unimported = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+no_implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = ["github_action_utils._commands", "github_action_utils._serialization", "github_action_utils._files", "github_action_utils._inputs", "github_action_utils._environment", "github_action_utils._artifacts"]
+disallow_any_expr = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+
+[tool.coverage.run]
+branch = true
+source = ["github_action_utils"]
+relative_files = true
+patch = ["subprocess"]
+
+[tool.coverage.report]
+fail_under = 100
+precision = 2
+show_missing = true
+exclude_lines = []
+
+[tool.coverage.json]
+output = "reports/runtime-coverage.json"
+
+[tool.tox]
+env_list = ["py311", "py312", "py313", "py314", "py315", "lint", "type", "coverage", "package"]
+skip_missing_interpreters = false
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+package = "wheel"
+dependency_groups = ["test"]
+no_default_groups = true
+pass_env = ["UV_*", "GITHUB_ACTIONS", "CI"]
+commands = [["python", "-m", "pytest", {replace = "posargs", default = ["tests"], extend = true}]]
+
+[tool.tox.env.lint]
+dependency_groups = ["lint"]
+commands = [["ruff", "check", "."], ["ruff", "format", "--check", "."]]
+
+[tool.tox.env.type]
+dependency_groups = ["type"]
+commands = [["mypy"]]
+
+[tool.tox.env.coverage]
+commands = [["python", "-m", "pytest", "--cov=github_action_utils", "--cov-branch", "--cov-report=term-missing", "--cov-report=xml:reports/runtime-coverage.xml", "--cov-report=json:reports/runtime-coverage.json", "tests", "--ignore=tests/support"]]
+
+[tool.tox.env.package]
+dependency_groups = ["type", "test"]
+commands = [["uv", "build", "--clear"], ["python", "scripts/check_distribution.py"]]

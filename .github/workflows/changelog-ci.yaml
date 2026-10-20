@@ -4,12 +4,22 @@ on:
   pull_request:
     types: [ opened ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Run Changelog CI
-        uses: saadmk11/changelog-ci@v1.1.1
+        uses: saadmk11/changelog-ci@ed0c1a6b31e9b31d1baa74f66261d5d39c1f9705 # v2.0.2

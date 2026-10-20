@@ -71,6 +71,8 @@ jobs:
 
 The examples below use `import github_action_utils as gha`.
 
+![GitHub Actions workflow run](https://user-images.githubusercontent.com/24854406/180658147-9cfddcfe-ef51-40bc-8e0f-1949482e6a09.png)
+
 ## Logging
 
 | Function | Result |
@@ -97,6 +99,8 @@ Use columns for a single line; GitHub drops column properties for annotations
 spanning multiple lines. Pass normal text—command helpers handle escaping.
 See the [workflow command reference](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands).
 
+![Log annotations associated with a source file](https://user-images.githubusercontent.com/24854406/180003164-12735d03-a452-4bef-96a6-f1dc4298756e.png)
+
 ## Groups and command control
 
 ### Group related logs
@@ -109,6 +113,8 @@ with gha.group("Run checks"):
 
 The group closes even if the body raises. For manual control, use
 `start_group(title)` and `end_group()`.
+
+![Grouped logs in GitHub Actions](https://user-images.githubusercontent.com/24854406/180003937-5839856e-09f9-47e7-8b62-f5126a78cad6.png)
 
 ### Mask sensitive values
 
@@ -238,6 +244,8 @@ gha.append_job_summary(
 
 Markdown is written as raw UTF-8. Replacement and deletion affect the current
 step's summary. [GitHub summary documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#adding-a-job-summary)
+
+![GitHub Actions annotations and rendered job summary](https://user-images.githubusercontent.com/24854406/180003153-99434824-d08c-4a54-9a89-4c6163def1b2.png)
 
 ## Inputs
 

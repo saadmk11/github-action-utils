@@ -104,5 +104,15 @@ jobs:
           RELEASE_VERSION: ${{ needs.release.outputs.version }}
         run: |
           uv venv --python 3.11 /tmp/published
-          uv pip install --refresh-package github-action-utils --python /tmp/published/bin/python "github-action-utils==$RELEASE_VERSION"
+          for attempt in {1..6}; do
+            if uv pip install --refresh-package github-action-utils --python /tmp/published/bin/python "github-action-utils==$RELEASE_VERSION"; then
+              break
+            fi
+            if [ "$attempt" -eq 6 ]; then
+              echo "::error::Could not install github-action-utils==$RELEASE_VERSION after 6 attempts."
+              exit 1
+            fi
+            echo "Published package installation failed; retrying in 10 seconds ($attempt/6)."
+            sleep 10
+          done
           /tmp/published/bin/python scripts/check_distribution.py --published-version "$RELEASE_VERSION"

@@ -18,7 +18,7 @@ Linux, Windows, and macOS. Tox tests an installed wheel. Settings are in
 
 Test observable behavior and add regression tests for bug fixes. Package code
 requires 100% statement and branch coverage. Source, tests, and scripts must pass
-strict mypy. Check workflow changes with actionlint 1.7.12.
+strict mypy. Check workflow changes with actionlint 1.7.12 and ShellCheck on PATH.
 
 The `package` check verifies source and wheel installs, installed typing, and
 upgrades from the published 1.1.0 package. It needs network access. To use a local

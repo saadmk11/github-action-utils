@@ -85,7 +85,7 @@ jobs:
         run: |
           cd dist
           sha256sum --check SHA256SUMS
-          uv publish --trusted-publishing always *.whl *.tar.gz
+          uv publish --trusted-publishing always ./*.whl ./*.tar.gz
 
   verify-release:
     needs: [release, publish]

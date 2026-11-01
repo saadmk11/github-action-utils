@@ -22,4 +22,4 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Run Changelog CI
-        uses: saadmk11/changelog-ci@ed0c1a6b31e9b31d1baa74f66261d5d39c1f9705 # v2.0.2
+        uses: saadmk11/changelog-ci@5b5ee0d3959eb63923c59d42ccd4afac1321b034 # v2.0.3
